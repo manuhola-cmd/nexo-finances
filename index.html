@@ -401,6 +401,27 @@ function nextDue(e) {
   const next = occ.find(d => d >= t && !payFor(e.id, d));
   return { overdue, next };
 }
+// Money carried in from earlier months: real cash for months that are over, the plan for this month on.
+function firstMonth() {
+  const ds = state.entries.filter(isMine).map(e => e.start_date).concat(state.payments.filter(p => p.user_id === state.me.id).map(p => p.due_date)).sort();
+  return ds.length ? ds[0].slice(0, 7) : ymOf(new Date());
+}
+function monthNet(ym) {
+  const cur = ymOf(new Date());
+  let inc = 0, exp = 0;
+  monthItems(ym, state.entries.filter(isMine)).forEach(it => {
+    if (ym < cur && !it.pay) return;              // months that are over: only what really happened
+    const a = it.pay ? num(it.pay.amount) : num(it.e.amount);
+    if (it.e.kind === 'income') inc += a; else exp += a;
+  });
+  const saved = state.contribs.filter(c => c.user_id === state.me.id && c.contributed_on.startsWith(ym)).reduce((x, c) => x + num(c.amount), 0);
+  return inc - exp - saved;
+}
+function carryInto(ym) {
+  let total = 0;
+  for (let m = firstMonth(); m < ym; m = nextMonth(m)) total += monthNet(m);
+  return Math.round(total * 100) / 100;
+}
 function monthSummary(ym) {
   const items = monthItems(ym, state.entries.filter(isMine));
   const s = { ym, items, incPlan: 0, incGot: 0, expPlan: 0, expPaid: 0, saved: 0 };
@@ -415,7 +436,9 @@ function monthSummary(ym) {
   s.leftOver = s.incPlan - s.expPlan - s.saved;
   // Safe to spend: start with cash in hand, walk through what's still pending in date order
   // (late items first), and take the lowest point the balance reaches this month.
-  s.cash = s.incGot - s.expPaid - s.saved;
+  s.carry = carryInto(ym);
+  s.cash = s.carry + s.incGot - s.expPaid - s.saved;
+  s.endBalance = s.carry + s.leftOver;
   let run = s.cash, low = s.cash, lowDate = null, nextIncome = null;
   const t = today();
   items.filter(it => !it.pay).map(it => ({ it, d: it.date < t ? t : it.date }))
@@ -712,6 +735,7 @@ function viewOverview() {
       ${ivRow('Income', s.incGot, s.incPlan, Math.max(s.incPlan, s.expPlan), 'var(--in)')}
       ${ivRow('Expenses', s.expPaid, s.expPlan, Math.max(s.incPlan, s.expPlan), 'var(--out)')}
       ${s.saved ? ivRow('Saved', s.saved, s.saved, Math.max(s.incPlan, s.expPlan), 'var(--save)') : ''}
+      ${s.carry ? `<div class="spread small" style="margin-top:12px"><span class="muted">From last month</span><b class="${s.carry >= 0 ? 'in' : 'out'}">${s.carry < 0 ? '−' : '+'}${money(Math.abs(s.carry))}</b></div>` : ''}
       <div class="net"><span class="muted">${s.leftOver >= 0 ? 'Left over this month' : 'Short this month'}</span>
         <span class="num ${s.leftOver >= 0 ? 'in' : 'out'}">${s.leftOver >= 0 ? '+' : '−'}${money(Math.abs(s.leftOver))}</span></div>
     </section>
@@ -735,7 +759,7 @@ function cashFlowChart(s) {
     if (it.e.kind === 'income') deltaIn[d] += a; else deltaOut[d] += a;
   });
   state.contribs.filter(c => c.user_id === state.me.id && c.contributed_on.startsWith(ym)).forEach(c => deltaOut[parseD(c.contributed_on).getDate()] += num(c.amount));
-  const bal = []; let run = 0;
+  const bal = []; let run = s.carry || 0;
   for (let d = 1; d <= n; d++) { run += deltaIn[d] - deltaOut[d]; bal[d] = run; }
   const W = 340, H = 180, L = 38, R = 8, T = 12, B = 32;
   const lo = Math.min(0, ...bal.slice(1)), hi = Math.max(0, ...bal.slice(1), lo < 0 ? 1 : 100);
@@ -933,6 +957,8 @@ function viewMonthly() {
       <div class="proj"><div><div class="k">Income</div><div class="v in">${money0(s.incPlan)}</div></div>
         <div><div class="k">Expenses</div><div class="v out">${money0(s.expPlan)}</div></div>
         <div class="left"><div class="k">${s.leftOver >= 0 ? 'Left over' : 'Short'}</div><div class="v">${s.leftOver < 0 ? '−' : ''}${money0(Math.abs(s.leftOver))}</div></div></div>
+      ${s.carry ? `<div class="spread small" style="margin-top:12px"><span class="muted">From last month</span><b class="${s.carry >= 0 ? 'in' : 'out'}">${s.carry < 0 ? '−' : '+'}${money(Math.abs(s.carry))}</b></div>
+        <div class="spread" style="margin-top:4px;font-weight:700"><span>End of month balance</span><span class="amt ${s.endBalance >= 0 ? 'in' : 'out'}">${s.endBalance < 0 ? '−' : ''}${money(Math.abs(s.endBalance))}</span></div>` : ''}
       ${s.saved ? `<p class="small muted" style="margin:10px 0 0">Includes ${money(s.saved)} you put into saving goals.</p>` : ''}
     </section>
     <section class="card"><div class="cal">${cells}</div>
@@ -1275,7 +1301,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151922';
+const APP_VERSION = '202610151937';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
