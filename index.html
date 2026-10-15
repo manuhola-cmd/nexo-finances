@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF2F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1622" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nexo Finances">
+<title>Nexo Finances</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EEF2F1; --surface: #FFFFFF; --sunk: #E3E9E7;
+  --ink: #17233A; --muted: #5B6678; --line: #D3DBD9;
+  --save: #0F7B5F; --save-soft: #DCF1E9;
+  --fee: #B42318; --fee-soft: #FBE4E1;
+  --accent: #2F4BB8; --accent-ink: #FFFFFF;
+  --m0: #0F7B5F; --m1: #6B45B8; --m2: #C27C0E; --m3: #2F7FB8;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1622; --surface: #172131; --sunk: #1D2940;
+    --ink: #E7ECF3; --muted: #9AA6B8; --line: #26334A;
+    --save: #3CC79A; --save-soft: #12382D;
+    --fee: #F07158; --fee-soft: #3D1A16;
+    --accent: #7C95FF; --accent-ink: #0F1622;
+    --m0: #3CC79A; --m1: #A98BF0; --m2: #E8A93A; --m3: #62AEE6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1622; --surface: #172131; --sunk: #1D2940;
+  --ink: #E7ECF3; --muted: #9AA6B8; --line: #26334A;
+  --save: #3CC79A; --save-soft: #12382D;
+  --fee: #F07158; --fee-soft: #3D1A16;
+  --accent: #7C95FF; --accent-ink: #0F1622;
+  --m0: #3CC79A; --m1: #A98BF0; --m2: #E8A93A; --m3: #62AEE6;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; min-height: 100%; background: var(--bg); color: var(--ink);
+  font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+h1, h2, h3, .num { font-family: var(--display); letter-spacing: -0.01em; }
+h1 { font-size: 1.75rem; line-height: 1.15; margin: 0; font-weight: 800; }
+h2 { font-size: 1.2rem; margin: 0 0 .5rem; font-weight: 700; }
+h3 { font-size: 1rem; margin: 0; font-weight: 700; }
+p { margin: 0 0 .75rem; }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 18px 110px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; align-items: center; justify-content: space-between; padding: 14px 0 10px; }
+.icon-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  width: 40px; height: 40px; display: grid; place-items: center; font-size: 1.1rem; }
+.month-bar { display: flex; align-items: center; gap: 8px; margin: 4px 0 18px; }
+.month-bar .label { font-weight: 600; min-width: 130px; text-align: center; }
+
+/* buttons */
+.btn { border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 600; background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.danger { background: transparent; color: var(--fee); border: 1px solid var(--fee); }
+.btn.small { padding: 7px 12px; font-size: .875rem; border-radius: 9px; }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .5; cursor: default; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* sections & lists */
+.section { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 16px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+.list li:first-child { border-top: 0; }
+.list .grow { flex: 1; min-width: 0; }
+.list .title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.amount { font-family: var(--display); font-weight: 700; white-space: nowrap; }
+.chip { display: inline-block; font-size: .75rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--sunk); color: var(--muted); }
+.chip.behind { background: var(--fee-soft); color: var(--fee); }
+.chip.autopay { background: var(--save-soft); color: var(--save); }
+.save { color: var(--save); } .fee { color: var(--fee); }
+.empty { padding: 18px 4px; color: var(--muted); }
+.clickable { cursor: pointer; }
+.clickable:hover .title { text-decoration: underline; }
+
+/* bars */
+.bar { height: 10px; border-radius: 5px; background: var(--sunk); overflow: hidden; display: flex; }
+.bar > span { display: block; height: 100%; }
+
+/* plan */
+.plan-hero { padding: 22px 18px; border-radius: 22px; background: var(--save-soft); color: var(--ink); margin-bottom: 16px; }
+.plan-hero .big { font-family: var(--display); font-weight: 800; font-size: 3rem; line-height: 1; color: var(--save); }
+.ladder { list-style: none; margin: 0; padding: 0; position: relative; }
+.ladder::before { content: ""; position: absolute; left: 47px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
+.ladder li { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 10px 0; position: relative; }
+.ladder .when { font-family: var(--display); font-weight: 700; text-align: center; font-size: .9rem; }
+.ladder .when span { display: inline-block; background: var(--surface); border: 2px solid var(--save); border-radius: 999px; padding: 3px 10px; position: relative; }
+.ladder .running { font-family: var(--display); font-weight: 700; color: var(--save); }
+.cushion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cushion input { width: 130px; }
+
+/* household */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .875rem; margin: 6px 0 12px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.cat-row { padding: 10px 0; border-top: 1px solid var(--line); }
+.cat-row:first-child { border-top: 0; }
+.cat-row .line1 { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 600; }
+.cat-row .split { display: flex; gap: 14px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-top: 6px; }
+.code { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: .12em; }
+
+/* forms */
+label { display: block; font-weight: 600; font-size: .9rem; margin: 12px 0 4px; }
+.hint { font-weight: 400; color: var(--muted); font-size: .8rem; display: block; }
+input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.check { display: flex; gap: 10px; align-items: center; font-weight: 500; }
+.check input { width: 20px; height: 20px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* nav */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.nav .inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
+.nav button { background: none; border: 0; padding: 9px 2px 10px; font-size: .75rem; font-weight: 600; color: var(--muted); display: grid; justify-items: center; gap: 2px; }
+.nav button .ic { font-size: 1.25rem; line-height: 1; filter: grayscale(1); opacity: .7; }
+.nav button[aria-current="page"] { color: var(--accent); }
+.nav button[aria-current="page"] .ic { filter: none; opacity: 1; }
+
+/* modal */
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(10, 16, 28, .5); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; border-radius: 22px 22px 0 0;
+  padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px)); animation: rise .2s ease-out; }
+@media (min-width: 620px) { .overlay { align-items: center; } .sheet { border-radius: 22px; } }
+@keyframes rise { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+
+/* auth */
+.auth { max-width: 420px; margin: 0 auto; padding: 48px 20px; }
+.auth h1 { font-size: 2.6rem; margin-bottom: 8px; }
+.tabs2 { display: flex; gap: 6px; background: var(--sunk); padding: 4px; border-radius: 12px; margin: 22px 0 6px; }
+.tabs2 button { flex: 1; border: 0; background: none; padding: 9px; border-radius: 9px; font-weight: 600; color: var(--muted); }
+.tabs2 button[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; max-width: 90vw; }
+.toast.err { background: var(--fee); color: #fff; }
+.loading { text-align: center; padding: 80px 20px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script>
+/* ==========================================================
+   STEP 1 OF SETUP: paste your two Supabase values here.
+   (Supabase > Project Settings > API, or the "Connect" button)
+   ========================================================== */
+const SUPABASE_URL = 'https://cuohvucnwweeednvkxqb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tfF5BGmg1TCrSSmcyeZqPw_N8C6-yuD';
+
+/* ---------- constants ---------- */
+const CATEGORIES = ['Housing', 'Food & Groceries', 'Utilities', 'Phone & Internet', 'Transportation',
+  'Entertainment', 'Health', 'Insurance', 'Debt', 'Kids', 'Personal', 'Other'];
+const MEMBER_COLORS = ['var(--m0)', 'var(--m1)', 'var(--m2)', 'var(--m3)'];
+const STATUS_LABEL = { behind: 'Paying late', on_time: 'On time', autopay: 'Autopay' };
+
+/* ---------- state ---------- */
+let db = null;
+const state = {
+  session: null, me: null, household: null, members: [],
+  bills: [], tx: [], loans: [], payments: [],
+  tab: 'me', month: ymOf(new Date()), authMode: 'signin'
+};
+
+/* ---------- small helpers ---------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const app = () => document.getElementById('app');
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+function money(n) { return usd.format(Number(n) || 0); }
+function num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : Math.round(n * 100) / 100; }
+function pad(n) { return String(n).padStart(2, '0'); }
+function ymOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+function today() { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function monthStart(ym) { return ym + '-01'; }
+function nextMonth(ym, delta = 1) { const [y, m] = ym.split('-').map(Number); return ymOf(new Date(y, m - 1 + delta, 1)); }
+function monthName(ym) { const [y, m] = ym.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
+function shortMonth(offset) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + offset); return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }); }
+function ordinal(n) { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+function niceDate(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function memberName(id) { const m = state.members.find(x => x.id === id); return m ? m.display_name : 'Someone'; }
+function memberColor(id) { const i = state.members.findIndex(x => x.id === id); return MEMBER_COLORS[(i < 0 ? 0 : i) % MEMBER_COLORS.length]; }
+function catOptions(sel) { return CATEGORIES.map(c => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join(''); }
+function savingsOf(b) { return (b.status === 'behind' ? num(b.late_fee) : 0) + (b.status !== 'autopay' ? num(b.autopay_discount) : 0); }
+
+function toast(msg, isErr = false) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isErr ? ' err' : '');
+  t.setAttribute('role', 'status');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), isErr ? 4500 : 2200);
+}
+function fail(error) { console.error(error); toast(error?.message || 'Something went wrong. Check your connection and try again.', true); }
+
+/* ---------- modal ---------- */
+function openModal(title, bodyHtml, onMount) {
+  closeModal();
+  const o = document.createElement('div');
+  o.className = 'overlay'; o.id = 'overlay';
+  o.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" aria-label="Close" data-close>✕</button></div>
+    ${bodyHtml}</div>`;
+  o.addEventListener('click', e => { if (e.target === o || e.target.closest('[data-close]')) closeModal(); });
+  document.body.appendChild(o);
+  const first = o.querySelector('input, select, textarea');
+  if (first) setTimeout(() => first.focus(), 50);
+  if (onMount) onMount(o);
+}
+function closeModal() { const o = document.getElementById('overlay'); if (o) o.remove(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ==========================================================
+   STARTUP
+   ========================================================== */
+async function init() {
+  if (SUPABASE_URL.startsWith('PASTE') || SUPABASE_KEY.startsWith('PASTE')) {
+    app().innerHTML = `<div class="auth"><h1>Almost there</h1>
+      <p>Open <b>index.html</b> and paste your Supabase project URL and key at the top of the script, where it says “STEP 1 OF SETUP”.</p></div>`;
+    return;
+  }
+  if (!window.supabase) { app().innerHTML = `<div class="auth"><h1>Can’t connect</h1><p>The app couldn’t load. Check your internet connection and refresh.</p></div>`; return; }
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data } = await db.auth.getSession();
+  state.session = data.session;
+  db.auth.onAuthStateChange((_event, session) => {
+    const wasIn = !!state.session; state.session = session;
+    if (!session) renderAuth();
+    else if (!wasIn) setTimeout(loadAll, 0);
+  });
+  if (state.session) loadAll(); else renderAuth();
+}
+
+/* ---------- auth screen ---------- */
+function renderAuth() {
+  const up = state.authMode === 'signup';
+  app().innerHTML = `<div class="auth">
+    <h1>Nexo Finances</h1>
+    <p class="muted">Bills, catch-up plan, and what each of us puts into the house.</p>
+    <div class="tabs2" role="group">
+      <button aria-pressed="${!up}" data-mode="signin">Sign in</button>
+      <button aria-pressed="${up}" data-mode="signup">Create account</button>
+    </div>
+    <form id="authForm">
+      ${up ? `<label for="an">Your name</label><input id="an" required autocomplete="given-name" placeholder="e.g. Carlos">` : ''}
+      <label for="ae">Email</label><input id="ae" type="email" required autocomplete="email">
+      <label for="ap">Password <span class="hint">At least 6 characters</span></label>
+      <input id="ap" type="password" required minlength="6" autocomplete="${up ? 'new-password' : 'current-password'}">
+      <div style="height:16px"></div>
+      <button class="btn block" type="submit">${up ? 'Create account' : 'Sign in'}</button>
+    </form></div>`;
+  app().querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { state.authMode = b.dataset.mode; renderAuth(); });
+  $('#authForm').onsubmit = async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
+    const email = $('#ae').value.trim(), password = $('#ap').value;
+    try {
+      if (up) {
+        const { data, error } = await db.auth.signUp({ email, password, options: { data: { display_name: $('#an').value.trim() } } });
+        if (error) throw error;
+        if (!data.session) { toast('Account created. Check your email to confirm it, then sign in.'); state.authMode = 'signin'; renderAuth(); }
+      } else {
+        const { error } = await db.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      }
+    } catch (err) { fail(err); btn.disabled = false; }
+  };
+}
+
+/* ==========================================================
+   DATA
+   ========================================================== */
+async function loadAll() {
+  app().innerHTML = `<div class="loading">Loading Nexo Finances…</div>`;
+  try {
+    const uid = state.session.user.id;
+    const { data: me, error: e1 } = await db.from('profiles').select('*').eq('id', uid).single();
+    if (e1) throw e1;
+    state.me = me;
+    state.household = null; state.members = [me];
+    if (me.household_id) {
+      const [{ data: h }, { data: mem }] = await Promise.all([
+        db.from('households').select('*').eq('id', me.household_id).single(),
+        db.from('profiles').select('*').eq('household_id', me.household_id).order('created_at')
+      ]);
+      state.household = h; state.members = mem && mem.length ? mem : [me];
+    }
+    const [{ data: bills, error: e2 }, { data: loans, error: e3 }, { data: pays, error: e4 }] = await Promise.all([
+      db.from('bills').select('*').eq('user_id', uid).order('due_day', { nullsFirst: false }),
+      db.from('loans').select('*').order('lent_on', { ascending: false }),
+      db.from('loan_payments').select('*').order('paid_on')
+    ]);
+    if (e2 || e3 || e4) throw (e2 || e3 || e4);
+    state.bills = bills || []; state.loans = loans || []; state.payments = pays || [];
+    await loadMonth();
+    render();
+  } catch (err) {
+    fail(err);
+    app().innerHTML = `<div class="auth"><h1>Couldn’t load</h1><p>${esc(err.message || '')}</p>
+      <p class="muted small">If this is your first time, make sure you ran schema.sql in the Supabase SQL Editor.</p>
+      <button class="btn" onclick="loadAll()">Try again</button> <button class="btn ghost" onclick="db.auth.signOut()">Sign out</button></div>`;
+  }
+}
+async function loadMonth() {
+  const { data, error } = await db.from('transactions').select('*')
+    .gte('spent_on', monthStart(state.month)).lt('spent_on', monthStart(nextMonth(state.month)))
+    .order('spent_on', { ascending: false }).order('created_at', { ascending: false });
+  if (error) throw error;
+  state.tx = data || [];
+}
+async function changeMonth(delta) {
+  state.month = nextMonth(state.month, delta);
+  try { await loadMonth(); render(); } catch (err) { fail(err); }
+}
+const myTx = () => state.tx.filter(t => t.user_id === state.me.id);
+const householdTx = () => state.tx.filter(t => t.is_household);
+
+/* ==========================================================
+   LAYOUT
+   ========================================================== */
+const TABS = [
+  ['me', '👤', 'Me'], ['bills', '🧾', 'Bills'], ['plan', '🪜', 'Plan'],
+  ['household', '🏡', 'Household'], ['loans', '🤝', 'Loans']
+];
+function render() {
+  const view = { me: viewMe, bills: viewBills, plan: viewPlan, household: viewHousehold, loans: viewLoans }[state.tab];
+  const showMonth = ['me', 'household'].includes(state.tab);
+  app().innerHTML = `
+    <div class="wrap">
+      <header class="top">
+        <h1>${esc(TABS.find(t => t[0] === state.tab)[2] === 'Me' ? 'Hi, ' + state.me.display_name : TABS.find(t => t[0] === state.tab)[2])}</h1>
+        <button class="icon-btn" aria-label="Settings" id="settingsBtn">⚙︎</button>
+      </header>
+      ${showMonth ? `<div class="month-bar">
+        <button class="icon-btn" aria-label="Previous month" id="prevM">‹</button>
+        <span class="label">${monthName(state.month)}</span>
+        <button class="icon-btn" aria-label="Next month" id="nextM">›</button></div>` : ''}
+      <main id="view">${view()}</main>
+    </div>
+    <nav class="nav" aria-label="Sections"><div class="inner">
+      ${TABS.map(([id, ic, label]) => `<button data-tab="${id}" ${state.tab === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${ic}</span>${label}</button>`).join('')}
+    </div></nav>`;
+  app().querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; render(); window.scrollTo(0, 0); });
+  $('#settingsBtn').onclick = openSettings;
+  if (showMonth) { $('#prevM').onclick = () => changeMonth(-1); $('#nextM').onclick = () => changeMonth(1); }
+  bindView();
+}
+// one delegated click handler for everything inside the view
+function bindView() {
+  $('#view').onclick = e => {
+    const el = e.target.closest('[data-act]'); if (!el) return;
+    const { act, id } = el.dataset;
+    const actions = {
+      addExpense: () => openExpenseForm(), delExpense: () => deleteExpense(id), paid: () => markPaid(id),
+      addBill: () => openBillForm(), editBill: () => openBillForm(state.bills.find(b => b.id === id)),
+      fixed: () => markFixed(id), saveCushion: saveCushion,
+      createHH: () => openHouseholdSetup('create'), joinHH: () => openHouseholdSetup('join'),
+      newLoan: openLoanForm, payLoan: () => openPaymentForm(id), delLoan: () => deleteLoan(id), loanHistory: () => openLoanHistory(id)
+    };
+    if (actions[act]) actions[act]();
+  };
+}
+
+/* ==========================================================
+   ME
+   ========================================================== */
+function viewMe() {
+  const mine = myTx();
+  const total = mine.reduce((s, t) => s + num(t.amount), 0);
+  const paidIds = new Set(mine.filter(t => t.bill_id).map(t => t.bill_id));
+  const upcoming = state.bills.filter(b => b.status !== 'autopay' && !paidIds.has(b.id));
+  const isCurrent = state.month === ymOf(new Date());
+  const dayNow = new Date().getDate();
+
+  const byCat = {};
+  mine.forEach(t => byCat[t.category] = (byCat[t.category] || 0) + num(t.amount));
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const max = cats.length ? cats[0][1] : 1;
+
+  return `
+    <section class="section">
+      <div class="section-head">
+        <div><div class="muted small">I spent this month</div><div class="num" style="font-size:2.2rem;font-weight:800;line-height:1.1">${money(total)}</div></div>
+        <button class="btn" data-act="addExpense">Add expense</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Bills to pay</h2>
+      ${upcoming.length ? `<ul class="list">${upcoming.map(b => {
+        let when = b.due_day ? `Pay by the ${ordinal(b.due_day)}` : 'No due day set';
+        let tone = '';
+        if (isCurrent && b.due_day) {
+          const left = b.due_day - dayNow;
+          if (left < 0) { when = `Due the ${ordinal(b.due_day)}, it’s late`; tone = 'fee'; }
+          else if (left <= 5) { when = left === 0 ? 'Due today' : `Due in ${left} day${left > 1 ? 's' : ''}`; tone = 'fee'; }
+        }
+        const feeNote = num(b.late_fee) > 0 ? ` to skip the ${money(b.late_fee)} fee` : '';
+        return `<li><div class="grow"><div class="title">${esc(b.name)}</div>
+          <div class="small ${tone}">${when}${feeNote}</div></div>
+          <span class="amount">${money(b.amount)}</span>
+          <button class="btn small ghost" data-act="paid" data-id="${b.id}">Paid</button></li>`;
+      }).join('')}</ul>` : `<p class="empty">${state.bills.length ? 'All bills for this month are paid or on autopay.' : 'Add your bills in the Bills tab to see what’s due.'}</p>`}
+    </section>
+
+    ${cats.length ? `<section class="section"><h2>Where it went</h2>
+      ${cats.map(([c, v]) => `<div class="cat-row"><div class="line1"><span>${esc(c)}</span><span class="amount">${money(v)}</span></div>
+        <div class="bar"><span style="width:${(v / max * 100).toFixed(1)}%;background:var(--accent)"></span></div></div>`).join('')}
+    </section>` : ''}
+
+    <section class="section">
+      <h2>My expenses</h2>
+      ${mine.length ? `<ul class="list">${mine.map(t => `<li>
+        <div class="grow"><div class="title">${esc(t.description || t.category)}</div>
+        <div class="small muted">${niceDate(t.spent_on)} · ${esc(t.category)}${t.is_household ? '' : ' · Private'}</div></div>
+        <span class="amount">${money(t.amount)}</span>
+        <button class="icon-btn" aria-label="Delete expense" data-act="delExpense" data-id="${t.id}">🗑</button></li>`).join('')}</ul>`
+        : `<p class="empty">No expenses this month. Tap “Add expense” to log one.</p>`}
+    </section>`;
+}
+
+function openExpenseForm() {
+  const defDate = state.month === ymOf(new Date()) ? today() : monthStart(state.month);
+  openModal('Add expense', `<form id="xf">
+    <div class="grid2">
+      <div><label for="xa">Amount</label><input id="xa" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
+      <div><label for="xd">Date</label><input id="xd" type="date" value="${defDate}" required></div>
+    </div>
+    <label for="xc">Category</label><select id="xc">${catOptions('Food & Groceries')}</select>
+    <label for="xn">What was it? <span class="hint">Optional</span></label><input id="xn" placeholder="e.g. Costco">
+    <label class="check"><input id="xh" type="checkbox" checked> Count it in Household</label>
+    <span class="hint">Leave on for shared costs. Turn off for personal things only you should see.</span>
+    <div style="height:16px"></div><button class="btn block" type="submit">Save expense</button></form>`, o => {
+    $('#xf', o).onsubmit = async e => {
+      e.preventDefault();
+      const row = { category: $('#xc', o).value, amount: num($('#xa', o).value), spent_on: $('#xd', o).value,
+        description: $('#xn', o).value.trim() || null, is_household: $('#xh', o).checked };
+      const { error } = await db.from('transactions').insert(row);
+      if (error) return fail(error);
+      closeModal(); toast('Expense saved'); await refreshMonth();
+    };
+  });
+}
+async function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  const { error } = await db.from('transactions').delete().eq('id', id);
+  if (error) return fail(error);
+  toast('Expense deleted'); await refreshMonth();
+}
+async function markPaid(billId) {
+  const b = state.bills.find(x => x.id === billId); if (!b) return;
+  const date = state.month === ymOf(new Date()) ? today() : monthStart(state.month);
+  const { error } = await db.from('transactions').insert({ bill_id: b.id, category: b.category, amount: num(b.amount) || 0.01,
+    spent_on: date, description: b.name, is_household: true });
+  if (error) return fail(error);
+  toast(`${b.name} marked paid`); await refreshMonth();
+}
+async function refreshMonth() { try { await loadMonth(); render(); } catch (err) { fail(err); } }
+
+/* ==========================================================
+   BILLS
+   ========================================================== */
+function viewBills() {
+  const total = state.bills.reduce((s, b) => s + num(b.amount), 0);
+  const losing = state.bills.reduce((s, b) => s + savingsOf(b), 0);
+  return `
+    <section class="section">
+      <div class="section-head">
+        <div><div class="muted small">Monthly bills</div><div class="num" style="font-size:2rem;font-weight:800;line-height:1.1">${money(total)}</div></div>
+        <button class="btn" data-act="addBill">Add bill</button>
+      </div>
+      ${losing > 0 ? `<p class="fee" style="margin:6px 0 0">Late fees and missed autopay discounts cost you ${money(losing)} a month. The Plan tab shows how to stop that.</p>` : ''}
+    </section>
+    <section class="section">
+      ${state.bills.length ? `<ul class="list">${state.bills.map(b => `<li class="clickable" data-act="editBill" data-id="${b.id}">
+        <div class="grow"><div class="title">${esc(b.name)}</div>
+          <div class="small muted">${b.due_day ? 'Due the ' + ordinal(b.due_day) : 'No due day'} · ${esc(b.category)}</div>
+          <div style="margin-top:4px"><span class="chip ${b.status}">${STATUS_LABEL[b.status]}</span>
+          ${savingsOf(b) > 0 ? ` <span class="small save">Could save ${money(savingsOf(b))}/mo</span>` : ''}</div></div>
+        <span class="amount">${money(b.amount)}</span></li>`).join('')}</ul>`
+        : `<p class="empty">Add each bill you pay every month: house, phone, car, utilities. For the ones you pay late, include the late fee so the app can build your catch-up plan.</p>`}
+    </section>`;
+}
+
+function openBillForm(b) {
+  const isNew = !b; b = b || { name: '', category: 'Housing', amount: '', due_day: '', late_fee: '', autopay_discount: '', catch_up_amount: '', status: 'behind', notes: '' };
+  openModal(isNew ? 'Add bill' : 'Edit bill', `<form id="bf">
+    <label for="bn">Name</label><input id="bn" required value="${esc(b.name)}" placeholder="e.g. House payment">
+    <div class="grid2">
+      <div><label for="ba">Monthly amount</label><input id="ba" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.amount)}"></div>
+      <div><label for="bd">Pay by day <span class="hint">1–31</span></label><input id="bd" type="number" inputmode="numeric" min="1" max="31" value="${esc(b.due_day)}" placeholder="15"></div>
+    </div>
+    <label for="bc">Category</label><select id="bc">${catOptions(b.category)}</select>
+    <label for="bs">How I pay it now</label>
+    <select id="bs">${Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}" ${b.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+    <div class="grid2">
+      <div><label for="bl">Late fee <span class="hint">Charged when I pay late</span></label><input id="bl" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.late_fee)}"></div>
+      <div><label for="bp">Autopay discount <span class="hint">Saved per month on autopay</span></label><input id="bp" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.autopay_discount)}"></div>
+    </div>
+    <label for="bu">Money needed to catch up <span class="hint">What I’d need up front to pay it on time or turn on autopay</span></label>
+    <input id="bu" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.catch_up_amount)}">
+    <label for="bo">Notes <span class="hint">Optional</span></label><textarea id="bo" rows="2">${esc(b.notes)}</textarea>
+    <div style="height:16px"></div>
+    <div class="row-actions"><button class="btn" type="submit" style="flex:1">${isNew ? 'Add bill' : 'Save changes'}</button>
+    ${isNew ? '' : '<button class="btn danger" type="button" id="bdel">Delete</button>'}</div></form>`, o => {
+    $('#bf', o).onsubmit = async e => {
+      e.preventDefault();
+      const dd = parseInt($('#bd', o).value, 10);
+      const row = { name: $('#bn', o).value.trim(), amount: num($('#ba', o).value), due_day: dd >= 1 && dd <= 31 ? dd : null,
+        category: $('#bc', o).value, status: $('#bs', o).value, late_fee: num($('#bl', o).value),
+        autopay_discount: num($('#bp', o).value), catch_up_amount: num($('#bu', o).value), notes: $('#bo', o).value.trim() || null };
+      const q = isNew ? db.from('bills').insert(row) : db.from('bills').update(row).eq('id', b.id);
+      const { error } = await q;
+      if (error) return fail(error);
+      closeModal(); toast(isNew ? 'Bill added' : 'Changes saved'); await reloadBills();
+    };
+    const del = $('#bdel', o);
+    if (del) del.onclick = async () => {
+      if (!confirm(`Delete ${b.name}?`)) return;
+      const { error } = await db.from('bills').delete().eq('id', b.id);
+      if (error) return fail(error);
+      closeModal(); toast('Bill deleted'); await reloadBills();
+    };
+  });
+}
+async function reloadBills() {
+  const { data, error } = await db.from('bills').select('*').eq('user_id', state.me.id).order('due_day', { nullsFirst: false });
+  if (error) return fail(error);
+  state.bills = data || []; render();
+}
+
+/* ==========================================================
+   PLAN — the catch-up snowball
+   Every bill you fix frees up money each month. That money
+   goes toward the next bill, so each step comes faster.
+   ========================================================== */
+function buildPlan(bills, cushion) {
+  const items = bills.filter(b => b.status !== 'autopay').map(b => ({ b, need: num(b.catch_up_amount), save: savingsOf(b) }))
+    .filter(x => x.save > 0)
+    .sort((a, b) => (a.need / a.save) - (b.need / b.save)); // fastest payback first
+  let fund = 0, freed = 0, i = 0; const steps = [];
+  for (let m = 0; m <= 120 && i < items.length; m++) {
+    if (m > 0) fund += cushion + freed;
+    while (i < items.length && fund >= items[i].need) {
+      fund -= items[i].need; freed += items[i].save;
+      steps.push({ ...items[i], month: m, freedAfter: freed }); i++;
+    }
+  }
+  return { steps, stuck: items.slice(i), totalSave: items.reduce((s, x) => s + x.save, 0) };
+}
+function viewPlan() {
+  const cushion = num(state.me.monthly_cushion);
+  const { steps, stuck, totalSave } = buildPlan(state.bills, cushion);
+  const doneCount = state.bills.filter(b => b.status === 'autopay').length;
+  if (!totalSave) {
+    return `<section class="section"><h2>Nothing to fix yet</h2>
+      <p class="muted">${state.bills.length ? 'None of your bills have a late fee or autopay discount entered. Edit a bill in the Bills tab and add those amounts.' : 'Add your bills first. For each one, enter the late fee, any autopay discount, and how much you’d need up front to catch up.'}</p>
+      ${doneCount ? `<p class="save">${doneCount} bill${doneCount > 1 ? 's are' : ' is'} already on autopay.</p>` : ''}</section>`;
+  }
+  return `
+    <div class="plan-hero">
+      <div class="big">${money(totalSave)}</div>
+      <p style="margin:6px 0 0;font-weight:600">a month you stop losing once these bills are fixed. That’s ${money(totalSave * 12)} a year.</p>
+    </div>
+    <section class="section">
+      <label for="cush" style="margin-top:0">How much can you set aside each month to catch up?</label>
+      <div class="cushion"><input id="cush" type="number" inputmode="decimal" min="0" step="1" value="${cushion || ''}" placeholder="50">
+        <button class="btn small" data-act="saveCushion">Update plan</button></div>
+      <p class="small muted" style="margin:8px 0 0">Even a small amount works. Each bill you fix stops a fee, and that saved money goes toward the next bill.</p>
+    </section>
+    <section class="section">
+      <h2>Your order</h2>
+      ${steps.length ? `<ol class="ladder">${steps.map(s => `<li>
+        <div class="when"><span>${s.month === 0 ? 'Now' : shortMonth(s.month)}</span></div>
+        <div><h3>${esc(s.b.name)}</h3>
+          <div class="small">${s.need > 0 ? `Put in ${money(s.need)}, then turn on autopay.` : 'No money needed up front. Turn on autopay today.'} Saves ${money(s.save)}/mo.</div>
+          <div class="small">Total saved after this step: <span class="running">${money(s.freedAfter)}/mo</span></div>
+          <button class="btn small ghost" style="margin-top:6px" data-act="fixed" data-id="${s.b.id}">Done, it’s on autopay</button></div></li>`).join('')}</ol>`
+        : `<p class="empty">Enter an amount above to see when each bill gets fixed.</p>`}
+      ${stuck.length && steps.length ? `<p class="small muted">${stuck.length} more bill${stuck.length > 1 ? 's' : ''} would take over 10 years at this pace. Try a higher monthly amount.</p>` : ''}
+      ${stuck.length && !steps.length ? `<p class="small muted">Waiting on: ${stuck.map(s => esc(s.b.name)).join(', ')}</p>` : ''}
+    </section>`;
+}
+async function saveCushion() {
+  const v = num($('#cush').value);
+  const { error } = await db.from('profiles').update({ monthly_cushion: v }).eq('id', state.me.id);
+  if (error) return fail(error);
+  state.me.monthly_cushion = v; toast('Plan updated'); render();
+}
+async function markFixed(id) {
+  const { error } = await db.from('bills').update({ status: 'autopay' }).eq('id', id);
+  if (error) return fail(error);
+  toast('Nice. One less late fee.'); await reloadBills();
+}
+
+/* ==========================================================
+   HOUSEHOLD
+   ========================================================== */
+function noHousehold(what) {
+  return `<section class="section"><h2>Set up your household</h2>
+    <p class="muted">${what} One of you creates the household and shares the code. The other joins with it.</p>
+    <div class="row-actions"><button class="btn" data-act="createHH">Create household</button>
+    <button class="btn ghost" data-act="joinHH">Join with a code</button></div></section>`;
+}
+function viewHousehold() {
+  if (!state.household) return noHousehold('See how much each of you puts into food, entertainment, and everything else.');
+  const tx = householdTx();
+  const total = tx.reduce((s, t) => s + num(t.amount), 0);
+  const byMember = {}; const byCat = {};
+  tx.forEach(t => {
+    byMember[t.user_id] = (byMember[t.user_id] || 0) + num(t.amount);
+    byCat[t.category] = byCat[t.category] || { total: 0, by: {} };
+    byCat[t.category].total += num(t.amount);
+    byCat[t.category].by[t.user_id] = (byCat[t.category].by[t.user_id] || 0) + num(t.amount);
+  });
+  const cats = Object.entries(byCat).sort((a, b) => b[1].total - a[1].total);
+  const splitBar = (by, tot) => `<div class="bar">${state.members.map(m => by[m.id] ? `<span style="width:${(by[m.id] / tot * 100).toFixed(1)}%;background:${memberColor(m.id)}" title="${esc(m.display_name)}"></span>` : '').join('')}</div>`;
+
+  return `
+    <section class="section">
+      <div class="muted small">${esc(state.household.name)} spent</div>
+      <div class="num" style="font-size:2.2rem;font-weight:800;line-height:1.1;margin-bottom:10px">${money(total)}</div>
+      ${total ? splitBar(byMember, total) : ''}
+      <div class="legend">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)}: <b>${money(byMember[m.id] || 0)}</b>${total ? ` (${Math.round((byMember[m.id] || 0) / total * 100)}%)` : ''}</span>`).join('')}</div>
+    </section>
+    <section class="section">
+      <h2>Who put in what</h2>
+      ${cats.length ? cats.map(([c, v]) => `<div class="cat-row">
+        <div class="line1"><span>${esc(c)}</span><span class="amount">${money(v.total)}</span></div>
+        ${splitBar(v.by, v.total)}
+        <div class="split">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)} ${money(v.by[m.id] || 0)}</span>`).join('')}</div>
+      </div>`).join('') : `<p class="empty">No shared expenses this month yet. Expenses with “Count it in Household” turned on show up here.</p>`}
+    </section>
+    ${tx.length ? `<section class="section"><h2>Shared expenses</h2><ul class="list">${tx.slice(0, 40).map(t => `<li>
+      <div class="grow"><div class="title">${esc(t.description || t.category)}</div>
+      <div class="small muted"><span class="dot" style="background:${memberColor(t.user_id)}"></span>${esc(memberName(t.user_id))} · ${niceDate(t.spent_on)} · ${esc(t.category)}</div></div>
+      <span class="amount">${money(t.amount)}</span></li>`).join('')}</ul></section>` : ''}
+    ${state.members.length < 2 ? `<section class="section"><h2>Invite your partner</h2>
+      <p class="muted">They create their own account in the app, then go to Household and tap “Join with a code”.</p>
+      <div class="code">${esc(state.household.invite_code)}</div></section>` : ''}`;
+}
+function openHouseholdSetup(mode) {
+  const create = mode === 'create';
+  openModal(create ? 'Create household' : 'Join household', `<form id="hf">
+    ${create ? `<label for="hn">Household name</label><input id="hn" value="Our home" required>`
+      : `<label for="hc">Invite code <span class="hint">Ask your partner for the 6-letter code</span></label><input id="hc" required maxlength="6" style="text-transform:uppercase;letter-spacing:.15em">`}
+    <div style="height:16px"></div><button class="btn block" type="submit">${create ? 'Create household' : 'Join household'}</button></form>`, o => {
+    $('#hf', o).onsubmit = async e => {
+      e.preventDefault();
+      const { error } = create ? await db.rpc('create_household', { p_name: $('#hn', o).value })
+        : await db.rpc('join_household', { p_code: $('#hc', o).value });
+      if (error) return fail(error);
+      closeModal(); toast(create ? 'Household created' : 'You joined the household'); loadAll();
+    };
+  });
+}
+
+/* ==========================================================
+   LOANS — only the person who lent can change a loan
+   ========================================================== */
+function loanPaid(id) { return state.payments.filter(p => p.loan_id === id).reduce((s, p) => s + num(p.amount), 0); }
+function viewLoans() {
+  if (!state.household) return noHousehold('Track money you lend each other and what’s been paid back.');
+  const others = state.members.filter(m => m.id !== state.me.id);
+  const lent = state.loans.filter(l => l.lender_id === state.me.id);
+  const borrowed = state.loans.filter(l => l.borrower_id === state.me.id);
+  const owedToMe = lent.reduce((s, l) => s + Math.max(0, num(l.amount) - loanPaid(l.id)), 0);
+  const iOwe = borrowed.reduce((s, l) => s + Math.max(0, num(l.amount) - loanPaid(l.id)), 0);
+
+  const card = (l, mine) => {
+    const paid = loanPaid(l.id), left = Math.max(0, num(l.amount) - paid), pct = Math.min(100, paid / num(l.amount) * 100);
+    const who = mine ? `To ${esc(memberName(l.borrower_id))}` : `From ${esc(memberName(l.lender_id))}`;
+    return `<li style="display:block">
+      <div style="display:flex;justify-content:space-between;gap:12px"><div class="grow"><div class="title">${who}${l.description ? ': ' + esc(l.description) : ''}</div>
+      <div class="small muted">Lent ${niceDate(l.lent_on)} · ${money(l.amount)}</div></div>
+      <div style="text-align:right">${left > 0 ? `<div class="amount">${money(left)}</div><div class="small muted">left</div>` : `<span class="chip autopay">Paid back</span>`}</div></div>
+      <div class="bar" style="margin:8px 0"><span style="width:${pct.toFixed(1)}%;background:var(--save)"></span></div>
+      <div class="small muted" style="margin-bottom:8px">${money(paid)} paid back</div>
+      <div class="row-actions">
+        ${mine && left > 0 ? `<button class="btn small" data-act="payLoan" data-id="${l.id}">Record payment</button>` : ''}
+        <button class="btn small ghost" data-act="loanHistory" data-id="${l.id}">History</button>
+        ${mine ? `<button class="btn small danger" data-act="delLoan" data-id="${l.id}">Delete</button>` : `<span class="small muted" style="align-self:center">${esc(memberName(l.lender_id))} manages this loan</span>`}
+      </div></li>`;
+  };
+  return `
+    <section class="section">
+      <div class="grid2">
+        <div><div class="muted small">Owed to me</div><div class="num save" style="font-size:1.7rem;font-weight:800">${money(owedToMe)}</div></div>
+        <div><div class="muted small">I owe</div><div class="num" style="font-size:1.7rem;font-weight:800">${money(iOwe)}</div></div>
+      </div>
+      <div style="height:12px"></div>
+      ${others.length ? `<button class="btn block" data-act="newLoan">I lent money</button>` : `<p class="muted small" style="margin:0">Your partner needs to join the household before you can add loans. Code: <b>${esc(state.household.invite_code)}</b></p>`}
+    </section>
+    <section class="section"><h2>Money I lent</h2>
+      ${lent.length ? `<ul class="list">${lent.map(l => card(l, true)).join('')}</ul>` : `<p class="empty">When you lend money, tap “I lent money”. You record each payment as it comes back.</p>`}</section>
+    <section class="section"><h2>Money I borrowed</h2>
+      ${borrowed.length ? `<ul class="list">${borrowed.map(l => card(l, false)).join('')}</ul>` : `<p class="empty">Nothing borrowed. Loans your partner records show up here.</p>`}</section>`;
+}
+function openLoanForm() {
+  const others = state.members.filter(m => m.id !== state.me.id);
+  openModal('I lent money', `<form id="lf">
+    <label for="lb">To</label><select id="lb">${others.map(m => `<option value="${m.id}">${esc(m.display_name)}</option>`).join('')}</select>
+    <div class="grid2">
+      <div><label for="la">Amount</label><input id="la" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
+      <div><label for="ld">Date</label><input id="ld" type="date" value="${today()}" required></div>
+    </div>
+    <label for="ln">What for? <span class="hint">Optional</span></label><input id="ln" placeholder="e.g. Car repair">
+    <div style="height:16px"></div><button class="btn block" type="submit">Save loan</button></form>`, o => {
+    $('#lf', o).onsubmit = async e => {
+      e.preventDefault();
+      const { error } = await db.from('loans').insert({ borrower_id: $('#lb', o).value, amount: num($('#la', o).value),
+        lent_on: $('#ld', o).value, description: $('#ln', o).value.trim() || null });
+      if (error) return fail(error);
+      closeModal(); toast('Loan saved'); await reloadLoans();
+    };
+  });
+}
+function openPaymentForm(loanId) {
+  const l = state.loans.find(x => x.id === loanId); if (!l) return;
+  const left = Math.max(0, num(l.amount) - loanPaid(l.id));
+  openModal('Record payment', `<p class="muted">${esc(memberName(l.borrower_id))} still owes ${money(left)} of ${money(l.amount)}.</p>
+    <form id="pf"><div class="grid2">
+      <div><label for="pa">Amount paid back</label><input id="pa" type="number" inputmode="decimal" step="0.01" min="0.01" max="${left}" value="${left}" required></div>
+      <div><label for="pd">Date</label><input id="pd" type="date" value="${today()}" required></div></div>
+    <label for="pn">Note <span class="hint">Optional</span></label><input id="pn">
+    <div style="height:16px"></div><button class="btn block" type="submit">Save payment</button></form>`, o => {
+    $('#pf', o).onsubmit = async e => {
+      e.preventDefault();
+      const amt = num($('#pa', o).value);
+      if (amt > left + 0.001) return toast(`That’s more than the ${money(left)} left.`, true);
+      const { error } = await db.from('loan_payments').insert({ loan_id: l.id, amount: amt, paid_on: $('#pd', o).value, note: $('#pn', o).value.trim() || null });
+      if (error) return fail(error);
+      closeModal();
+      const now = left - amt;
+      toast(now > 0.001 ? `Saved. ${money(now)} still owed.` : 'Paid back in full'); await reloadLoans();
+    };
+  });
+}
+function openLoanHistory(loanId) {
+  const l = state.loans.find(x => x.id === loanId); if (!l) return;
+  const pays = state.payments.filter(p => p.loan_id === l.id);
+  let running = num(l.amount);
+  const rows = [`<li><div class="grow"><div class="title">Lent</div><div class="small muted">${niceDate(l.lent_on)}</div></div><span class="amount">${money(l.amount)}</span></li>`]
+    .concat(pays.map(p => { running -= num(p.amount); return `<li><div class="grow"><div class="title">Paid back${p.note ? ': ' + esc(p.note) : ''}</div>
+      <div class="small muted">${niceDate(p.paid_on)} · ${money(Math.max(0, running))} left after</div></div><span class="amount save">−${money(p.amount)}</span></li>`; }));
+  openModal('Loan history', `<ul class="list">${rows.join('')}</ul>`);
+}
+async function deleteLoan(id) {
+  if (!confirm('Delete this loan and its payment history?')) return;
+  const { error } = await db.from('loans').delete().eq('id', id);
+  if (error) return fail(error);
+  toast('Loan deleted'); await reloadLoans();
+}
+async function reloadLoans() {
+  const [{ data: loans, error: e1 }, { data: pays, error: e2 }] = await Promise.all([
+    db.from('loans').select('*').order('lent_on', { ascending: false }), db.from('loan_payments').select('*').order('paid_on')]);
+  if (e1 || e2) return fail(e1 || e2);
+  state.loans = loans || []; state.payments = pays || []; render();
+}
+
+/* ==========================================================
+   SETTINGS
+   ========================================================== */
+function openSettings() {
+  openModal('Settings', `<form id="sf">
+    <label for="sn">My name</label><input id="sn" value="${esc(state.me.display_name)}" required>
+    <div style="height:10px"></div><button class="btn small" type="submit">Save name</button></form>
+    <div style="height:20px"></div>
+    <h3>Household</h3>
+    ${state.household ? `<p class="muted small" style="margin:4px 0">${esc(state.household.name)} · ${state.members.map(m => esc(m.display_name)).join(', ')}</p>
+      <p class="small" style="margin:0">Invite code</p><div class="code">${esc(state.household.invite_code)}</div>
+      <div style="height:10px"></div><button class="btn small danger" id="leaveHH">Leave household</button>`
+      : `<p class="muted small">You’re not in a household yet. Set it up from the Household tab.</p>`}
+    <div style="height:20px"></div>
+    <p class="small muted" style="margin:0 0 8px">Signed in as ${esc(state.session.user.email)}</p>
+    <button class="btn ghost block" id="signOut">Sign out</button>`, o => {
+    $('#sf', o).onsubmit = async e => {
+      e.preventDefault();
+      const name = $('#sn', o).value.trim();
+      const { error } = await db.from('profiles').update({ display_name: name }).eq('id', state.me.id);
+      if (error) return fail(error);
+      state.me.display_name = name; const m = state.members.find(x => x.id === state.me.id); if (m) m.display_name = name;
+      closeModal(); toast('Name saved'); render();
+    };
+    const leave = $('#leaveHH', o);
+    if (leave) leave.onclick = async () => {
+      if (!confirm('Leave the household? Your expenses stay yours, but you will stop seeing shared data.')) return;
+      const { error } = await db.rpc('leave_household');
+      if (error) return fail(error);
+      closeModal(); toast('You left the household'); loadAll();
+    };
+    $('#signOut', o).onclick = async () => { closeModal(); await db.auth.signOut(); };
+  });
+}
+
+init();
+</script>
+</body>
+</html>
