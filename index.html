@@ -1053,6 +1053,19 @@ function openSettings() {
   });
 }
 
+/* ---------- auto-update: reload when a newer version is published ---------- */
+const APP_VERSION = '202610151805';
+async function checkVersion() {
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const { v } = await r.json();
+    if (v && v !== APP_VERSION && !document.getElementById('overlay')) location.replace(location.pathname + '?v=' + v);
+  } catch (_) { /* offline: keep current version */ }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkVersion(); });
+checkVersion();
+
 init();
 </script>
 </body>
