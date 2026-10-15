@@ -368,7 +368,7 @@ function nextDue(e) {
 }
 function monthSummary(ym) {
   const items = monthItems(ym, state.entries.filter(isMine));
-  const s = { items, incPlan: 0, incGot: 0, expPlan: 0, expPaid: 0, saved: 0 };
+  const s = { ym, items, incPlan: 0, incGot: 0, expPlan: 0, expPaid: 0, saved: 0 };
   items.forEach(it => {
     const a = it.pay ? num(it.pay.amount) : num(it.e.amount);
     if (it.e.kind === 'income') { s.incPlan += a; if (it.pay) s.incGot += a; }
@@ -468,7 +468,7 @@ async function loadAll() {
 const TABS = [['overview', 'Overview'], ['monthly', 'Monthly'], ['household', 'Household'], ['data', 'Data']];
 function render() {
   const views = { overview: viewOverview, monthly: viewMonthly, household: viewHousehold, data: viewData };
-  const showMonth = state.tab !== 'data';
+  const showMonth = state.tab === 'monthly' || state.tab === 'household';
   const title = { overview: 'Hi, ' + state.me.display_name, monthly: 'Monthly', household: state.household ? state.household.name : 'Household', data: 'Data' }[state.tab];
   const scroll = window.scrollY;
   app().innerHTML = `<div class="wrap">
@@ -546,8 +546,7 @@ async function togglePaid(entryId, date) {
    OVERVIEW
    ========================================================== */
 function viewOverview() {
-  const s = monthSummary(state.month);
-  const isNow = state.month === ymOf(new Date());
+  const s = monthSummary(ymOf(new Date()));
   const noData = !state.entries.some(isMine);
   if (noData) {
     return `<section class="hero"><div class="lbl">Available to spend</div><div class="big">$0</div>
@@ -558,7 +557,7 @@ function viewOverview() {
   const negative = s.available < 0;
   return `
     <section class="hero" aria-label="Available to spend">
-      <div class="lbl">${isNow ? 'Available to spend' : 'Available to spend in ' + monthName(state.month).split(' ')[0]}</div>
+      <div class="lbl">Available to spend</div>
       <div class="big ${negative ? 'neg' : ''}">${negative ? '−' : ''}${money(Math.abs(s.available))}</div>
       <div class="hero-stats">
         <div><div class="k">Received</div><div class="v">${money0(s.incGot)}</div></div>
@@ -570,7 +569,10 @@ function viewOverview() {
         : `This is what’s left after the bills still due this month${s.saved ? ` and ${money(s.saved)} you saved` : ''}.${s.incDue > 0 ? ` ${money(s.incDue)} more income is still on its way.` : ''}`}</div>
     </section>
 
-    <section class="card">
+    ${breakdown(s)}
+    ${goalsSection()}
+
+    <section class="card" style="margin-top:14px">
       <div class="card-head"><h2>Income vs expenses</h2><span class="tiny muted">Solid = done</span></div>
       ${ivRow('Income', s.incGot, s.incPlan, Math.max(s.incPlan, s.expPlan), 'var(--in)')}
       ${ivRow('Expenses', s.expPaid, s.expPlan, Math.max(s.incPlan, s.expPlan), 'var(--out)')}
@@ -579,11 +581,8 @@ function viewOverview() {
         <span class="num ${s.leftOver >= 0 ? 'in' : 'out'}">${s.leftOver >= 0 ? '+' : '−'}${money(Math.abs(s.leftOver))}</span></div>
     </section>
 
-    <section class="card"><div class="card-head"><h2>Cash flow</h2><span class="tiny muted">${monthName(state.month)}</span></div>
-      ${cashFlowChart(s)}</section>
-
-    ${breakdown(s)}
-    ${goalsSection()}`;
+    <section class="card"><div class="card-head"><h2>Cash flow</h2><span class="tiny muted">${monthName(ymOf(new Date()))}</span></div>
+      ${cashFlowChart(s)}</section>`;
 }
 function ivRow(label, done, plan, max, color) {
   const w = v => max ? Math.min(100, v / max * 100).toFixed(1) : 0;
@@ -591,7 +590,7 @@ function ivRow(label, done, plan, max, color) {
     <div class="track"><span class="plan" style="width:${w(plan)}%;background:${color}"></span><span class="done" style="width:${w(done)}%;background:${color}"></span></div></div>`;
 }
 function cashFlowChart(s) {
-  const ym = state.month, n = daysIn(ym), t = today();
+  const ym = s.ym, n = daysIn(ym), t = today();
   const deltaIn = Array(n + 1).fill(0), deltaOut = Array(n + 1).fill(0);
   s.items.forEach(it => {
     const d = parseD(it.date).getDate(), a = it.pay ? num(it.pay.amount) : num(it.e.amount);
@@ -630,15 +629,16 @@ function cashFlowChart(s) {
       ${dl}</svg>
     <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>Balance (dashed = projected)</span>
       <span><span class="dot" style="background:var(--in)"></span>Money in</span><span><span class="dot" style="background:var(--out)"></span>Money out</span></div>
-    <p class="small muted" style="margin:8px 0 0">You end ${monthName(state.month).split(' ')[0]} at <b class="${endBal >= 0 ? 'in' : 'out'}">${endBal < 0 ? '−' : ''}${money(Math.abs(endBal))}</b> if everything goes as planned.</p>`;
+    <p class="small muted" style="margin:8px 0 0">You end ${monthName(ym).split(' ')[0]} at <b class="${endBal >= 0 ? 'in' : 'out'}">${endBal < 0 ? '−' : ''}${money(Math.abs(endBal))}</b> if everything goes as planned.</p>`;
 }
 function breakdown(s) {
   const exp = s.items.filter(it => it.e.kind === 'expense');
-  const paidN = exp.filter(it => it.pay).length;
-  return `<details class="drop">
-    <summary><div><h2>Payment breakdown</h2><div class="small muted">${paidN} of ${exp.length} paid · ${money(s.expPlan)} this month</div></div>
+  const due = exp.filter(it => !it.pay), late = due.filter(it => it.date < today()).length;
+  const open = state.dropOpen ? 'open' : '';
+  return `<details class="drop" ${open} ontoggle="state.dropOpen=this.open">
+    <summary><div><h2>Payments due this month</h2><div class="small muted">${due.length ? `${due.length} left · ${money(s.expDue)}` : 'All paid'}${late ? ` · <span class="out">${late} late</span>` : ''}${exp.length - due.length ? ` · ${exp.length - due.length} paid` : ''}</div></div>
       <span class="chev" aria-hidden="true">▾</span></summary>
-    <div class="inner">${exp.length ? `<ul class="list">${exp.map(it => itemRow(it)).join('')}</ul>` : `<p class="empty">No payments this month.</p>`}</div>
+    <div class="inner">${due.length ? `<ul class="list">${due.map(it => itemRow(it)).join('')}</ul>` : `<p class="empty">${exp.length ? 'Every payment this month is checked off.' : 'No payments this month.'}</p>`}</div>
   </details>`;
 }
 
