@@ -1032,15 +1032,16 @@ function viewHousehold() {
       ${total ? split(byM, total) : ''}
       <div class="legend" style="margin-top:10px">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)} <b style="color:var(--ink)">${money(byM[m.id] || 0)}</b>${total ? ` (${Math.round((byM[m.id] || 0) / total * 100)}%)` : ''}</span>`).join('')}</div>
     </section>
+    <div class="spread sec-title"><h2>Shared goals</h2><button class="btn sm soft" data-act="newGoal">New goal</button></div>
+    ${sharedGoals.length ? `<div class="goals">${sharedGoals.map(goalCard).join('')}</div>` : `<div class="card"><p class="muted" style="margin:0">No shared goals yet. Create one, like a trip, and you can both add money to it.</p></div>`}
+    ${viewLoans()}
     <section class="card"><div class="card-head"><h2>Who put in what</h2></div>
       ${cats.length ? cats.map(([c, v]) => `<div style="padding:10px 0;border-top:1px solid var(--line)">
         <div class="spread" style="margin-bottom:6px;font-weight:600"><span>${CAT_ICON[c] || '•'} ${esc(c)}</span><span class="amt">${money(v.t)}</span></div>${split(v.by, v.t)}
         <div class="who-split" style="margin-top:6px">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)} ${money(v.by[m.id] || 0)}</span>`).join('')}</div></div>`).join('')
         : `<p class="empty">Nothing paid together yet this month. Payments you check off show up here when “Count in Household” is on.</p>`}
     </section>
-    <div class="spread sec-title"><h2>Shared goals</h2><button class="btn sm soft" data-act="newGoal">New goal</button></div>
-    ${sharedGoals.length ? `<div class="goals">${sharedGoals.map(goalCard).join('')}</div>` : `<div class="card"><p class="muted" style="margin:0">No shared goals yet. Create one, like a trip, and you can both add money to it.</p></div>`}
-    ${viewLoans()}
+
     ${state.members.length < 2 ? `<section class="card"><h2>Invite your partner</h2>
       <p class="muted" style="margin-top:6px">They create their own account, then go to Household and tap “Join with a code”.</p><div class="code">${esc(state.household.invite_code)}</div></section>` : ''}`;
 }
@@ -1300,7 +1301,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151938';
+const APP_VERSION = '202610151952';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
