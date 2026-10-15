@@ -416,11 +416,11 @@ function renderAuth() {
     <p class="muted">Your money and your household’s, in one place.</p>
     <div class="seg" role="group" style="margin:22px 0 6px">
       <button aria-pressed="${!up}" data-mode="signin">Sign in</button><button aria-pressed="${up}" data-mode="signup">Create account</button></div>
-    <form id="authForm">
-      ${up ? `<label for="an">Your name</label><input id="an" required autocomplete="given-name" placeholder="e.g. Manuel">` : ''}
-      <label for="ae">Email</label><input id="ae" type="email" required autocomplete="email">
+    <form id="authForm" method="post" action="#">
+      ${up ? `<label for="an">Your name</label><input id="an" name="name" required autocomplete="given-name" placeholder="e.g. Manuel">` : ''}
+      <label for="ae">Email</label><input id="ae" name="username" type="email" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" required autocomplete="username">
       <label for="ap">Password <span class="hint">At least 6 characters</span></label>
-      <input id="ap" type="password" required minlength="6" autocomplete="${up ? 'new-password' : 'current-password'}">
+      <input id="ap" name="password" type="password" required minlength="6" autocomplete="${up ? 'new-password' : 'current-password'}">
       <div style="height:16px"></div><button class="btn block" type="submit">${up ? 'Create account' : 'Sign in'}</button>
     </form></div>`;
   app().querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { state.authMode = b.dataset.mode; renderAuth(); });
@@ -1061,7 +1061,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151833';
+const APP_VERSION = '202610151836';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
