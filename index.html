@@ -163,6 +163,11 @@ details.drop .inner { padding: 0 16px 10px; border-top: 1px solid var(--line); }
 .goal .bar span { display: block; height: 100%; }
 .goal .bar .proj-fill { background: repeating-linear-gradient(-45deg, var(--save) 0 5px, transparent 5px 10px); opacity: .7; }
 .surplus { margin-top: 10px; background: var(--save-soft); border-radius: 12px; padding: 10px 12px; font-size: .85rem; line-height: 1.45; }
+.ap { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  border-radius: 999px; padding: 5px 10px 5px 6px; font-size: .78rem; font-weight: 700; flex: none; }
+.ap .box { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--line); display: grid; place-items: center; color: transparent; font-size: .7rem; }
+.ap.on { color: var(--in); border-color: var(--in); }
+.ap.on .box { background: var(--in); border-color: var(--in); color: #fff; }
 .who-split { display: flex; flex-wrap: wrap; gap: 12px; font-size: .82rem; color: var(--muted); }
 .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
 
@@ -267,7 +272,7 @@ const ICONS = {
 let db = null;
 const state = {
   session: null, me: null, household: null, members: [],
-  entries: [], payments: [], goals: [], contribs: [], loans: [], loanPays: [],
+  entries: [], payments: [], goals: [], contribs: [], loans: [], loanPays: [], plans: {},
   tab: 'overview', month: ymOf(new Date()), calSel: null, dataFilter: 'all', authMode: 'signin',
   form: { kind: 'expense' }
 };
@@ -334,8 +339,20 @@ function addMonthsClamp(start, k) {
   const last = new Date(y, m + 1, 0).getDate();
   return new Date(y, m, Math.min(start.getDate(), last));
 }
-// occurrences in [fromIso, toIso)
+// Dates for an entry, following the app's on-time plan when it has one
 function occurrences(e, fromIso, toIso) {
+  const pl = state.plans && state.plans[e.id];
+  if (!pl) return rawOccurrences(e, fromIso, toIso);
+  const kept = pl.keepEnd ? rawOccurrences(e, fromIso, toIso).filter(d => d <= pl.keepEnd) : [];
+  const out = kept.slice();
+  for (let ym = pl.switchYm; monthStart(ym) < toIso; ym = nextMonth(ym)) {
+    const d = dueDateIn(ym, pl.due_day);
+    if (d >= fromIso && d < toIso && (!e.end_date || d <= e.end_date)) out.push(d);
+  }
+  return out.sort();
+}
+// occurrences in [fromIso, toIso)
+function rawOccurrences(e, fromIso, toIso) {
   const out = [], s = parseD(e.start_date), from = parseD(fromIso), to = parseD(toIso);
   const end = e.end_date ? parseD(e.end_date) : null;
   const ok = d => d >= from && d < to && (!end || d <= end);
@@ -416,6 +433,7 @@ function monthSummary(ym) {
    PAYCHECK PLAN & CATCH-UP
    ========================================================== */
 const PER_YEAR = { weekly: 52, biweekly: 26, fourweekly: 13, monthly: 12, yearly: 1, installments: 12 };
+function ordinal(n) { const v = n % 100, sfx = ['th', 'st', 'nd', 'rd']; return n + (sfx[(v - 20) % 10] || sfx[v] || sfx[0]); }
 function dueDateIn(ym, day) { return `${ym}-${pad(Math.min(day, daysIn(ym)))}`; }
 function mainIncome() {
   return state.entries.filter(e => isMine(e) && e.kind === 'income' && e.frequency !== 'once' && !e.end_date)
@@ -427,7 +445,7 @@ function pendingEvents(months, swap) {
   const from = monthStart(ymOf(d));
   const ev = [];
   state.entries.filter(isMine).forEach(e => {
-    const dates = swap && swap.id === e.id ? swap.dates : occurrences(e, from, to);
+    const dates = swap && swap.id === e.id ? swap.dates : rawOccurrences(e, from, to);
     dates.forEach(dt => { if (!payFor(e.id, dt)) ev.push({ d: dt < t ? t : dt, a: (e.kind === 'income' ? 1 : -1) * num(e.amount) }); });
   });
   if (swap && swap.extra) swap.extra.forEach(dt => ev.push({ d: dt < t ? t : dt, a: -num(swap.amount) }));
@@ -439,7 +457,7 @@ function catchUpPlan(e) {
   if (!e.due_day || e.kind !== 'expense' || e.end_date || e.frequency === 'once') return null;
   const months = 12, t = today(), d = new Date();
   const to = iso(new Date(d.getFullYear(), d.getMonth() + months, 1));
-  const unpaid = occurrences(e, monthStart(ymOf(d)), to).filter(dt => !payFor(e.id, dt));
+  const unpaid = rawOccurrences(e, monthStart(ymOf(d)), to).filter(dt => !payFor(e.id, dt));
   if (!unpaid.length) return null;
   const m0 = unpaid[0].slice(0, 7);
   const monthFor = i => nextMonth(m0, i);
@@ -467,20 +485,34 @@ function catchUpPlan(e) {
     switchYm: startYm, switchK: best ? best.k : null, keepDates: best ? best.kept : null, firstDue, payWith: firstDue ? payDay(firstDue) : null,
     savedFees: best ? Math.max(0, lateCount - best.k) * num(e.late_fee) : 0, monthlySave: num(e.late_fee) + (e.on_autopay ? 0 : num(e.autopay_discount)) };
 }
-async function applyCatchUp(entryId) {
-  const e = state.entries.find(x => x.id === entryId); const cp = e && catchUpPlan(e); if (!cp || !cp.switchYm) return;
-  const end = cp.keepDates.length ? cp.keepDates[cp.keepDates.length - 1] : iso(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1));
-  const { error: e1 } = await db.from('entries').update({ end_date: end }).eq('id', e.id); if (e1) return fail(e1);
-  const row = { kind: 'expense', description: e.description, category: e.category, amount: num(e.amount), start_date: cp.firstDue,
-    frequency: 'monthly', is_household: e.is_household, due_day: e.due_day, late_fee: e.late_fee, autopay_discount: e.autopay_discount, on_autopay: e.on_autopay };
-  const { error: e2 } = await db.from('entries').insert(row); if (e2) return fail(e2);
-  toast(`${e.description} now gets paid by the ${e.due_day}th starting ${monthName(cp.switchYm).split(' ')[0]}`); loadAll();
+function computePlans() {
+  state.plans = {};
+  state.entries.filter(e => isMine(e) && e.due_day && num(e.late_fee) > 0).forEach(e => {
+    const cp = catchUpPlan(e);
+    if (cp && cp.lateNow && cp.switchYm) state.plans[e.id] = { keepEnd: cp.keepDates.length ? cp.keepDates[cp.keepDates.length - 1] : null, switchYm: cp.switchYm, due_day: e.due_day, cp };
+  });
+}
+// Bills on autopay get checked off by themselves once their date arrives
+async function autoPayDue() {
+  const t = today(), tomorrow = iso(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1));
+  const rows = [];
+  state.entries.filter(e => isMine(e) && e.kind === 'expense' && e.on_autopay).forEach(e =>
+    occurrences(e, monthStart(ymOf(new Date())), tomorrow).forEach(d => { if (d <= t && !payFor(e.id, d)) rows.push({ entry_id: e.id, due_date: d, amount: num(e.amount), paid_on: d }); }));
+  if (!rows.length) return;
+  const { data, error } = await db.from('entry_payments').insert(rows).select();
+  if (!error && data) state.payments.push(...data);
+}
+async function setAutopay(entryId, on) {
+  const { error } = await db.from('entries').update({ on_autopay: on }).eq('id', entryId); if (error) return fail(error);
+  const e = state.entries.find(x => x.id === entryId); if (e) e.on_autopay = on;
+  toast(on ? `${e ? e.description : 'Bill'} is on autopay. It checks itself off on its date.` : 'Autopay off');
+  await autoPayDue(); computePlans(); rerender();
 }
 function setAsides() {
   const inc = mainIncome(); if (!inc) return null;
   const n = PER_YEAR[inc.frequency] || 26;
   const rows = state.entries.filter(e => isMine(e) && e.kind === 'expense' && e.frequency !== 'once' && !e.end_date && (!e.installments || nextDue(e).next))
-    .map(e => ({ e, per: num(e.amount) * (PER_YEAR[e.frequency] || 12) / n }))
+    .map(e => ({ e, per: num(e.amount) * (state.plans[e.id] ? 12 : (PER_YEAR[e.frequency] || 12)) / n }))
     .sort((a, b) => b.per - a.per);
   const total = rows.reduce((x, r) => x + r.per, 0);
   return { inc, n, rows, total, left: num(inc.amount) - total };
@@ -560,6 +592,8 @@ async function loadAll() {
       db.from('loan_payments').select('*').order('paid_on')]);
     const err = res.find(r => r.error); if (err) throw err.error;
     [state.entries, state.payments, state.goals, state.contribs, state.loans, state.loanPays] = res.map(r => r.data || []);
+    computePlans();
+    await autoPayDue();
     render();
   } catch (err) {
     fail(err);
@@ -606,10 +640,7 @@ function bindView() {
     const A = {
       toggle: () => togglePaid(id, date), goData: () => { state.tab = 'data'; render(); window.scrollTo(0, 0); },
       newGoal: () => openGoalForm(), moveLeft: () => moveLeftover(id),
-      catchUp: () => { const e = state.entries.find(x => x.id === id), cp = e && catchUpPlan(e); if (!cp) return;
-        const keep = cp.keepDates.length ? `Nothing changes until then: you still pay on ${cp.keepDates.map(niceDate).join(', ')}.\n\n` : '';
-        if (confirm(`${e.description}: starting ${monthName(cp.switchYm)} the app will schedule it on the ${e.due_day}th of each month.\n\n${keep}Apply this plan?`)) applyCatchUp(id); },
-      autopayOn: async () => { const { error } = await db.from('entries').update({ on_autopay: true }).eq('id', id); if (error) return fail(error); toast('Marked as on autopay'); loadAll(); }, addToGoal: () => openContribForm(id), goalDetail: () => openGoalDetail(id),
+      autopay: () => { const e = state.entries.find(x => x.id === id); if (e) setAutopay(id, !e.on_autopay); },
       day: () => { state.calSel = state.calSel === date ? null : date; render(); },
       editEntry: () => openEntryEdit(id), filter: () => { state.dataFilter = el.dataset.v; render(); },
       kind: () => { state.form = readForm(); state.form.kind = el.dataset.v; state.form.category = null; render(); },
@@ -650,6 +681,7 @@ async function togglePaid(entryId, date) {
     state.payments.push(data);
     toast(e.kind === 'income' ? `${e.description} received: +${money(e.amount)}` : `${e.description} paid: −${money(e.amount)}`);
   }
+  computePlans();
   rerender();
 }
 
@@ -921,30 +953,34 @@ function viewMonthly() {
    HOUSEHOLD
    ========================================================== */
 function planSection() {
-  const plans = state.entries.filter(e => isMine(e) && e.due_day).map(catchUpPlan).filter(Boolean)
-    .sort((a, b) => (b.lateNow ? 1 : 0) - (a.lateNow ? 1 : 0) || b.monthlySave - a.monthlySave);
+  const mine = state.entries.filter(e => isMine(e) && e.kind === 'expense' && e.due_day && !e.end_date && e.frequency !== 'once');
+  const mon = ym => monthName(ym).split(' ')[0];
+  const rows = mine.map(e => {
+    const pl = state.plans[e.id];
+    if (pl) { const cp = pl.cp;
+      return { order: 0, html: `<li style="display:block"><div class="spread"><div class="ttl">${esc(e.description)}</div><span class="chip late">Late now · ${money(e.late_fee)} fee</span></div>
+        <div class="small" style="margin-top:4px">On time from <b>${mon(cp.switchYm)}</b>: paid by the ${ordinal(e.due_day)}${cp.payWith ? ` with your ${niceDate(cp.payWith)} paycheck` : ''}.
+        ${cp.keepDates.length ? `<span class="muted">Until then: ${cp.keepDates.map(niceDate).join(', ')}.</span>` : ''}
+        ${cp.savedFees ? ` <span class="in">${money(cp.savedFees)} less in late fees.</span>` : ''}</div>
+        <div class="tiny muted" style="margin-top:4px">Already in your calendar and balance. It moves earlier on its own if you end up with more money.</div></li>` };
+    }
+    const cp = num(e.late_fee) > 0 ? catchUpPlan(e) : null;
+    if (cp && cp.lateNow) return { order: 0, html: `<li style="display:block"><div class="spread"><div class="ttl">${esc(e.description)}</div><span class="chip late">Late · ${money(e.late_fee)} fee</span></div>
+        <div class="small" style="margin-top:4px">Not enough room to pay it on time in the next 12 months yet. Saving into the AutoPay Buffer is what gets you there.</div></li>` };
+    return { order: e.on_autopay ? 2 : 1, html: `<li><div class="grow"><div class="ttl">${esc(e.description)}</div>
+        <div class="tiny ${e.on_autopay ? 'in' : 'muted'}">${e.on_autopay ? 'On autopay' : 'On time'} · due the ${ordinal(e.due_day)}${!e.on_autopay && num(e.autopay_discount) ? ` · autopay saves ${money(e.autopay_discount)}/mo` : ''}</div></div>
+        ${autopayToggle(e)}</li>` };
+  }).sort((a, b) => a.order - b.order);
   const sa = setAsides();
-  const catchCards = plans.map(cp => {
-    const e = cp.e, mon = ym => monthName(ym).split(' ')[0];
-    if (!cp.lateNow && !e.on_autopay) return `<li><div class="grow"><div class="ttl">${esc(e.description)}</div>
-        <div class="tiny muted">On time from ${mon(cp.switchYm || cp.firstOnTime)}. Due the ${e.due_day}th${cp.payWith ? `, covered by your ${niceDate(cp.payWith)} paycheck` : ''}.</div>
-        <div class="small in" style="margin-top:2px">Turn on autopay now${num(e.autopay_discount) ? ` and save ${money(e.autopay_discount)}/mo` : ''}.</div></div>
-        <button class="btn sm" data-act="autopayOn" data-id="${e.id}">It’s on autopay</button></li>`;
-    if (!cp.lateNow) return `<li><div class="grow"><div class="ttl">${esc(e.description)}</div><div class="tiny in">On autopay. Due the ${e.due_day}th.</div></div><span class="chip sh">Autopay</span></li>`;
-    return `<li style="display:block"><div class="spread"><div class="ttl">${esc(e.description)}</div><span class="chip late">Late · ${money(e.late_fee)} fee</span></div>
-      <div class="small" style="margin-top:4px">${cp.switchYm
-        ? `Pay it by the ${e.due_day}th starting <b>${mon(cp.switchYm)}</b>${cp.payWith ? `, from your <b>${niceDate(cp.payWith)}</b> paycheck` : ''}.
-           ${cp.switchK > 0 ? `Until then keep the current dates (${cp.keepDates.map(niceDate).join(', ')}).` : 'You can start now.'}
-           ${cp.savedFees ? `<span class="in">Saves ${money(cp.savedFees)} in late fees</span>${cp.firstOnTime ? ` compared with waiting until ${mon(cp.firstOnTime)}` : ''}.` : ''}`
-        : `Your cash flow can’t cover paying it earlier in the next 12 months yet. Saving into the AutoPay Buffer is what gets you there.`}</div>
-      ${cp.switchYm ? `<button class="btn sm" style="margin-top:8px" data-act="catchUp" data-id="${e.id}">Use this plan</button>` : ''}</li>`;
-  }).join('');
-  return `${plans.length ? `<section class="card"><div class="card-head"><h2>Get bills on time</h2></div><ul class="list">${catchCards}</ul></section>` : ''}
+  return `${rows.length ? `<section class="card"><div class="card-head"><h2>Bills on time</h2></div><ul class="list">${rows.map(r => r.html).join('')}</ul></section>` : ''}
     ${sa && sa.rows.length ? `<details class="drop"><summary><div><h2>From each paycheck</h2>
         <div class="small muted">Set aside ${money(sa.total)} of ${money(sa.inc.amount)} · <span class="${sa.left >= 0 ? 'in' : 'out'}">${sa.left >= 0 ? money(sa.left) + ' left' : money(-sa.left) + ' short'}</span></div></div><span class="chev" aria-hidden="true">▾</span></summary>
       <div class="inner"><ul class="list">${sa.rows.map(r => `<li><div class="grow"><div class="ttl">${esc(r.e.description)}</div>
-        <div class="tiny muted">${money(r.e.amount)} ${FREQ[r.e.frequency].toLowerCase()}</div></div><span class="amt">${money(r.per)}</span></li>`).join('')}</ul>
+        <div class="tiny muted">${money(r.e.amount)} ${state.plans[r.e.id] ? 'monthly' : FREQ[r.e.frequency].toLowerCase()}</div></div><span class="amt">${money(r.per)}</span></li>`).join('')}</ul>
         <p class="tiny muted" style="margin:8px 0 4px">Each bill split evenly across your ${sa.n} paychecks a year, so big ones like the house never catch you short.</p></div></details>` : ''}`;
+}
+function autopayToggle(e) {
+  return `<button class="ap ${e.on_autopay ? 'on' : ''}" data-act="autopay" data-id="${e.id}" aria-pressed="${!!e.on_autopay}" aria-label="Autopay for ${esc(e.description)}"><span class="box">✓</span>Autopay</button>`;
 }
 function noHousehold(what) {
   return `<section class="card"><h2>Set up your household</h2><p class="muted" style="margin-top:6px">${what} One of you creates it and shares the code. The other joins with it.</p>
@@ -1073,7 +1109,7 @@ async function deleteLoan(id) {
 function viewData() {
   const f = state.form, kind = f.kind || 'expense', inc = kind === 'income';
   const freq = f.frequency || 'monthly';
-  const mine = state.entries.filter(isMine);
+  const mine = state.entries.filter(e => isMine(e) && !(e.end_date && e.end_date < e.start_date));
   const flt = state.dataFilter;
   const shown = mine.filter(e => flt === 'all' || (flt === 'expense' && e.kind === 'expense') || (flt === 'income' && e.kind === 'income')
     || (flt === 'recurring' && e.frequency !== 'once' && !e.end_date) || (flt === 'ended' && (e.end_date || (e.frequency === 'once' && e.start_date < today()))));
@@ -1098,6 +1134,8 @@ function viewData() {
           <button type="button" data-v="todo" aria-pressed="${f.status !== 'done'}">${inc ? 'Still coming' : 'To pay'}</button>
           <button type="button" data-v="done" aria-pressed="${f.status === 'done'}">${inc ? 'Already received' : 'Already paid'}</button></div>
         <span class="hint" id="fsth" style="margin-top:4px">${f.status === 'done' ? 'Every date up to today gets checked off.' : 'You’ll check it off when it happens.'}</span>
+        ${inc ? '' : `<label class="toggle"><input id="fap" type="checkbox" ${f.on_autopay ? 'checked' : ''}> On autopay</label>
+          <span class="hint">Autopay bills check themselves off on their date.</span>`}
         ${state.household ? `<label class="toggle"><input id="fh" type="checkbox" ${f.is_household === false ? '' : 'checked'}> Count in Household</label>
           <span class="hint">Turn off for personal things your household shouldn’t see.</span>` : ''}
         <div style="height:16px"></div><button class="btn block" type="submit">${inc ? 'Add income' : 'Add expense'}</button>
@@ -1113,7 +1151,7 @@ function viewData() {
       return `<li style="cursor:pointer" data-act="editEntry" data-id="${e.id}"><span class="ic ${inc2 ? 'inc' : 'ex'}" aria-hidden="true">${CAT_ICON[e.category] || '•'}</span>
         <div class="grow"><div class="ttl">${esc(e.description)}</div>
           <div class="tiny muted">${esc(FREQ[e.frequency])}${e.frequency === 'installments' ? ' (' + e.installments + ')' : ''} · ${esc(e.category)} · ${status}${!e.is_household ? ' · Private' : ''}</div></div>
-        <span class="amt ${inc2 ? 'in' : ''}">${inc2 ? '+' : '−'}${money(e.amount)}</span></li>`;
+        <span class="amt ${inc2 ? 'in' : ''}">${inc2 ? '+' : '−'}${money(e.amount)}</span>${!inc2 && e.frequency !== 'once' && !e.end_date ? autopayToggle(e) : ''}</li>`;
     }).join('')}</ul>` : `<p class="empty">${mine.length ? 'Nothing matches this filter.' : 'Nothing here yet. Add your paycheck first, then each bill and subscription.'}</p>`}</section>`;
 }
 function readForm() {
@@ -1121,7 +1159,8 @@ function readForm() {
   const st = document.querySelector('#fst [aria-pressed="true"]');
   const fh = document.getElementById('fh');
   return { kind: state.form.kind, description: g('fd'), amount: g('fa'), category: g('fc'), frequency: g('ff'), start_date: g('fs'),
-    installments: g('fi'), status: st ? st.dataset.v : 'todo', is_household: fh ? fh.checked : true };
+    installments: g('fi'), status: st ? st.dataset.v : 'todo', is_household: fh ? fh.checked : true,
+    on_autopay: !!(document.getElementById('fap') && document.getElementById('fap').checked) };
 }
 function bindEntryForm(f) {
   const ff = $('#ff', f);
@@ -1135,7 +1174,8 @@ function bindEntryForm(f) {
     const v = readForm();
     if (v.frequency === 'installments' && !(parseInt(v.installments, 10) >= 1)) return toast('Enter how many payments the plan has.', true);
     const row = { kind: v.kind, description: v.description.trim(), amount: num(v.amount), category: v.category, frequency: v.frequency,
-      start_date: v.start_date, installments: v.frequency === 'installments' ? parseInt(v.installments, 10) : null, is_household: v.is_household };
+      start_date: v.start_date, installments: v.frequency === 'installments' ? parseInt(v.installments, 10) : null, is_household: v.is_household,
+      on_autopay: v.kind === 'expense' && v.on_autopay };
     const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
     const { data: e, error } = await db.from('entries').insert(row).select().single();
     if (error) { btn.disabled = false; return fail(error); }
@@ -1163,12 +1203,13 @@ function openEntryEdit(id) {
       <div><label for="es">${e.frequency === 'once' ? 'Date' : 'First date'}</label><input id="es" type="date" required value="${esc(e.start_date)}"></div></div>
     <div id="eiw" ${e.frequency === 'installments' ? '' : 'hidden'}><label for="ei">Number of payments</label><input id="ei" type="number" min="1" max="600" value="${esc(e.installments || '')}"></div>
     ${state.household ? `<label class="toggle"><input id="eh" type="checkbox" ${e.is_household ? 'checked' : ''}> Count in Household</label>` : ''}
+    ${inc ? '' : `<label class="toggle"><input id="eap" type="checkbox" ${e.on_autopay ? 'checked' : ''}> On autopay</label>`}
     ${inc ? '' : `<details style="margin-top:12px"><summary class="small" style="cursor:pointer;font-weight:600">Due date, late fee and autopay</summary>
       <div class="grid2"><div><label for="edd">Due day</label><input id="edd" type="number" inputmode="numeric" min="1" max="31" value="${esc(e.due_day || '')}" placeholder="e.g. 15"></div>
         <div><label for="elf">Late fee</label><input id="elf" type="number" inputmode="decimal" step="0.01" min="0" value="${num(e.late_fee) || ''}"></div></div>
       <div class="grid2"><div><label for="ead">Autopay discount</label><input id="ead" type="number" inputmode="decimal" step="0.01" min="0" value="${num(e.autopay_discount) || ''}"></div>
-        <div><label class="toggle" style="margin-top:38px"><input id="eap" type="checkbox" ${e.on_autopay ? 'checked' : ''}> On autopay</label></div></div>
-      <span class="hint">With a due day and late fee, the Monthly tab shows when you can start paying it on time.</span></details>`}
+        <div></div></div>
+      <span class="hint">With a due day and late fee, the app works out when you can pay it on time and schedules it for you.</span></details>`}
     <p class="small muted" style="margin:12px 0 0">${nd.overdue.length ? `<span class="out">${nd.overdue.length} past date${nd.overdue.length > 1 ? 's' : ''} not checked off.</span> ` : ''}${nd.next ? 'Next: ' + longDate(nd.next) : (e.end_date ? 'Cancelled on ' + niceDate(e.end_date) : 'No more dates.')}</p>
     ${recent.length ? `<p class="tiny muted" style="margin:4px 0 0">Last checked off: ${recent.map(p => niceDate(p.due_date)).join(', ')}</p>` : ''}
     <div style="height:16px"></div><button class="btn block" type="submit">Save changes</button>
@@ -1184,7 +1225,8 @@ function openEntryEdit(id) {
         start_date: $('#es', o).value, installments: fq === 'installments' ? parseInt($('#ei', o).value, 10) || 1 : null };
       if ($('#eh', o)) row.is_household = $('#eh', o).checked;
       if ($('#edd', o)) { const dd = parseInt($('#edd', o).value, 10); row.due_day = dd >= 1 && dd <= 31 ? dd : null;
-        row.late_fee = num($('#elf', o).value); row.autopay_discount = num($('#ead', o).value); row.on_autopay = $('#eap', o).checked; }
+        row.late_fee = num($('#elf', o).value); row.autopay_discount = num($('#ead', o).value); }
+      if ($('#eap', o)) row.on_autopay = $('#eap', o).checked;
       const { error } = await db.from('entries').update(row).eq('id', e.id); if (error) return fail(error);
       closeModal(); toast('Changes saved'); loadAll();
     };
@@ -1233,7 +1275,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151910';
+const APP_VERSION = '202610151922';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
