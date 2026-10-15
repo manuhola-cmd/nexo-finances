@@ -10,8 +10,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nexo Finances">
 <title>Nexo Finances</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23182447'/><path d='M28 72V28l44 44V28' stroke='%2346D6A3' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23182447'/><path d='M28 72V28l44 44V28' stroke='%2346D6A3' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -397,7 +399,7 @@ async function init() {
 function renderAuth() {
   const up = state.authMode === 'signup';
   app().innerHTML = `<div class="auth">
-    <div class="brand"><svg width="48" height="48" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#182447"/><path d="M28 72V28l44 44V28" stroke="#46D6A3" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="brand"><img src="icon.svg" width="52" height="52" alt="" style="border-radius:14px">
     <h1>Nexo Finances</h1></div>
     <p class="muted">Your money and your household’s, in one place.</p>
     <div class="seg" role="group" style="margin:22px 0 6px">
