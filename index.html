@@ -569,10 +569,7 @@ function viewOverview() {
         : `This is what’s left after the bills still due this month${s.saved ? ` and ${money(s.saved)} you saved` : ''}.${s.incDue > 0 ? ` ${money(s.incDue)} more income is still on its way.` : ''}`}</div>
     </section>
 
-    ${breakdown(s)}
-    ${goalsSection()}
-
-    <section class="card" style="margin-top:14px">
+    <section class="card">
       <div class="card-head"><h2>Income vs expenses</h2><span class="tiny muted">Solid = done</span></div>
       ${ivRow('Income', s.incGot, s.incPlan, Math.max(s.incPlan, s.expPlan), 'var(--in)')}
       ${ivRow('Expenses', s.expPaid, s.expPlan, Math.max(s.incPlan, s.expPlan), 'var(--out)')}
@@ -582,7 +579,10 @@ function viewOverview() {
     </section>
 
     <section class="card"><div class="card-head"><h2>Cash flow</h2><span class="tiny muted">${monthName(ymOf(new Date()))}</span></div>
-      ${cashFlowChart(s)}</section>`;
+      ${cashFlowChart(s)}</section>
+
+    ${breakdown(s)}
+    ${goalsSection()}`;
 }
 function ivRow(label, done, plan, max, color) {
   const w = v => max ? Math.min(100, v / max * 100).toFixed(1) : 0;
