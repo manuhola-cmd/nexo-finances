@@ -243,7 +243,7 @@ const INCOME_CATS = ['Salary', 'Side income', 'Refund', 'Gift', 'Other income'];
 const CAT_ICON = { 'Housing': '🏠', 'Food & Groceries': '🛒', 'Utilities': '💡', 'Phone & Internet': '📱', 'Transportation': '🚗',
   'Subscriptions': '📺', 'Entertainment': '🎬', 'Health': '🩺', 'Insurance': '🛡️', 'Debt': '💳', 'Kids': '🧸', 'Personal': '👤',
   'Other': '•', 'Salary': '💼', 'Side income': '🧰', 'Refund': '↩︎', 'Gift': '🎁', 'Other income': '＋' };
-const FREQ = { once: 'One time', weekly: 'Weekly', biweekly: 'Every 2 weeks', monthly: 'Monthly', yearly: 'Yearly', installments: 'Installment plan' };
+const FREQ = { once: 'One time', weekly: 'Weekly', biweekly: 'Every 2 weeks', fourweekly: 'Every 4 weeks', monthly: 'Monthly', yearly: 'Yearly', installments: 'Installment plan' };
 const MEMBER_COLORS = ['var(--m0)', 'var(--m1)', 'var(--m2)', 'var(--m3)'];
 const ICONS = {
   overview: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>',
@@ -323,8 +323,8 @@ function occurrences(e, fromIso, toIso) {
   const ok = d => d >= from && d < to && (!end || d <= end);
   const f = e.frequency;
   if (f === 'once') { if (ok(s)) out.push(iso(s)); return out; }
-  if (f === 'weekly' || f === 'biweekly') {
-    const step = f === 'weekly' ? 7 : 14;
+  if (f === 'weekly' || f === 'biweekly' || f === 'fourweekly') {
+    const step = f === 'weekly' ? 7 : f === 'biweekly' ? 14 : 28;
     let k = Math.max(0, Math.floor(dayDiff(s, from) / step));
     for (let guard = 0; guard < 600; guard++, k++) {
       const d = new Date(s.getFullYear(), s.getMonth(), s.getDate() + k * step);
@@ -377,8 +377,20 @@ function monthSummary(ym) {
   s.saved = state.contribs.filter(c => c.user_id === state.me.id && c.contributed_on.startsWith(ym)).reduce((x, c) => x + num(c.amount), 0);
   s.expDue = s.expPlan - s.expPaid;
   s.incDue = s.incPlan - s.incGot;
-  s.available = s.incGot - s.expPaid - s.expDue - s.saved;  // money in hand after covering the rest of this month's bills
   s.leftOver = s.incPlan - s.expPlan - s.saved;
+  // Safe to spend: start with cash in hand, walk through what's still pending in date order
+  // (late items first), and take the lowest point the balance reaches this month.
+  s.cash = s.incGot - s.expPaid - s.saved;
+  let run = s.cash, low = s.cash, lowDate = null, nextIncome = null;
+  const t = today();
+  items.filter(it => !it.pay).map(it => ({ it, d: it.date < t ? t : it.date }))
+    .sort((a, b) => a.d.localeCompare(b.d) || (a.it.e.kind === 'income' ? -1 : 1))
+    .forEach(({ it, d }) => {
+      run += (it.e.kind === 'income' ? 1 : -1) * num(it.e.amount);
+      if (it.e.kind === 'income' && !nextIncome) nextIncome = it.date;
+      if (run < low - 0.004) { low = run; lowDate = d; }
+    });
+  s.available = low; s.lowDate = lowDate; s.nextIncome = nextIncome;
   return s;
 }
 
@@ -554,14 +566,14 @@ function viewOverview() {
       <div class="lbl">Available to spend</div>
       <div class="big ${negative ? 'neg' : ''}">${negative ? '−' : ''}${money(Math.abs(s.available))}</div>
       <div class="hero-stats">
-        <div><div class="k">Received</div><div class="v">${money0(s.incGot)}</div></div>
-        <div><div class="k">Paid</div><div class="v">${money0(s.expPaid)}</div></div>
+        <div><div class="k">Cash now</div><div class="v">${s.cash < 0 ? '−' : ''}${money0(Math.abs(s.cash))}</div></div>
         <div><div class="k">Still to pay</div><div class="v">${money0(s.expDue)}</div></div>
+        <div><div class="k">Income coming</div><div class="v">${money0(s.incDue)}</div></div>
       </div>
       ${noData ? `<div class="hint-line" style="color:var(--hero-ink);font-size:.92rem">Add your paycheck and your bills in the Data tab and everything here fills in.</div>
         <div style="height:12px"></div><button class="btn sm" data-act="goData" style="background:#fff;color:#182447">Add income and bills</button>` : `<div class="hint-line">${negative
-        ? `You’re short ${money(-s.available)} for the rest of this month’s bills${s.incDue > 0 ? `, before ${money(s.incDue)} of income still on its way` : ''}.`
-        : `This is what’s left after the bills still due this month${s.saved ? ` and ${money(s.saved)} you saved` : ''}.${s.incDue > 0 ? ` ${money(s.incDue)} more income is still on its way.` : ''}`}</div>`}
+        ? `You’ll be short ${money(-s.available)} around ${niceDate(s.lowDate)}${s.nextIncome && s.nextIncome > s.lowDate ? `, before your ${niceDate(s.nextIncome)} income arrives` : ''}. Move a bill or hold off on extra spending until then.`
+        : `What you can spend and still cover every bill this month${s.nextIncome ? `, counting the income due ${niceDate(s.nextIncome)}` : ''}.${s.lowDate ? ` Tightest day: ${niceDate(s.lowDate)}.` : ''}`}</div>`}
     </section>
 
     <section class="card">
@@ -903,7 +915,7 @@ function viewData() {
     || (flt === 'recurring' && e.frequency !== 'once' && !e.end_date) || (flt === 'ended' && (e.end_date || (e.frequency === 'once' && e.start_date < today()))));
   const rows = shown.map(e => ({ e, nd: nextDue(e) })).sort((a, b) => (a.nd.overdue.length ? -1 : 0) - (b.nd.overdue.length ? -1 : 0) || (a.nd.next || '9').localeCompare(b.nd.next || '9'));
   const commit = mine.filter(e => e.kind === 'expense' && !e.end_date && e.frequency !== 'once');
-  const monthlyEq = e => ({ weekly: 52 / 12, biweekly: 26 / 12, monthly: 1, installments: 1, yearly: 1 / 12 }[e.frequency] || 0) * num(e.amount);
+  const monthlyEq = e => ({ weekly: 52 / 12, biweekly: 26 / 12, fourweekly: 13 / 12, monthly: 1, installments: 1, yearly: 1 / 12 }[e.frequency] || 0) * num(e.amount);
   const fixed = commit.reduce((s, e) => s + monthlyEq(e), 0);
   return `
     <section class="card"><h2>Add income or expense</h2>
@@ -1049,7 +1061,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151820';
+const APP_VERSION = '202610151827';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
