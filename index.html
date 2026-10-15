@@ -188,6 +188,7 @@ details.drop .inner { padding: 0 16px 10px; border-top: 1px solid var(--line); }
 
 /* forms */
 label { display: block; font-weight: 600; font-size: .88rem; margin: 12px 0 5px; }
+.req { color: var(--out); font-weight: 700; }
 .hint { font-weight: 400; color: var(--muted); font-size: .78rem; display: block; }
 input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); }
 input[type=checkbox] { width: 20px; height: 20px; padding: 0; }
@@ -313,7 +314,14 @@ function openModal(title, bodyHtml, onMount) {
     <div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" aria-label="Close" data-close>✕</button></div>${bodyHtml}</div>`;
   o.addEventListener('click', e => { if (e.target === o || e.target.closest('[data-close]')) closeModal(); });
   document.body.appendChild(o);
+  markRequired(o);
   if (onMount) onMount(o);
+}
+function markRequired(root) {
+  root.querySelectorAll('label[for]').forEach(l => {
+    const f = document.getElementById(l.htmlFor);
+    if (f && f.required && !l.querySelector('.req')) l.insertAdjacentHTML('beforeend', '<span class="req" aria-hidden="true"> *</span>');
+  });
 }
 function closeModal() { const o = document.getElementById('overlay'); if (o) o.remove(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
@@ -429,10 +437,12 @@ function renderAuth() {
     <form id="authForm" method="post" action="#">
       ${up ? `<label for="an">Your name</label><input id="an" name="name" required autocomplete="given-name" placeholder="e.g. Manuel">` : ''}
       <label for="ae">Email</label><input id="ae" name="username" type="email" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" required autocomplete="username">
-      <label for="ap">Password <span class="hint">At least 6 characters</span></label>
+      <label for="ap">Password</label>
       <input id="ap" name="password" type="password" required minlength="6" autocomplete="${up ? 'new-password' : 'current-password'}">
+      ${up ? '<span class="hint" style="margin-top:4px">At least 6 characters</span>' : ''}
       <div style="height:16px"></div><button class="btn block" type="submit">${up ? 'Create account' : 'Sign in'}</button>
     </form></div>`;
+  markRequired(app());
   app().querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { state.authMode = b.dataset.mode; renderAuth(); });
   $('#authForm').onsubmit = async e => {
     e.preventDefault();
@@ -510,6 +520,7 @@ function render() {
     $('#nextM').onclick = () => { state.month = nextMonth(state.month, 1); state.calSel = null; render(); };
   }
   bindView();
+  markRequired(app());
   window.scrollTo(0, scroll);
 }
 function rerender() { render(); }
@@ -727,7 +738,7 @@ function openGoalForm(g) {
   openModal(isNew ? 'New saving goal' : 'Edit goal', `<form id="gf">
     <label for="gn">Name</label><input id="gn" required value="${esc(g.name)}" placeholder="e.g. Autopay cushion, Trip to Puerto Rico">
     <div class="grid2"><div><label for="ga">Goal amount</label><input id="ga" type="number" inputmode="decimal" min="1" step="0.01" required value="${esc(g.target_amount)}"></div>
-      <div><label for="gd">By when <span class="hint">Optional</span></label><input id="gd" type="date" value="${esc(g.target_date || '')}"></div></div>
+      <div><label for="gd">By when</label><input id="gd" type="date" value="${esc(g.target_date || '')}"></div></div>
     <label class="toggle"><input id="gt" type="checkbox" ${g.tracks_surplus ? 'checked' : ''}> Fill with what’s left each month</label>
     <span class="hint">Shows this month’s extra money as a striped part of the bar, and offers to move last month’s leftover here.</span>
     ${state.household ? `<label class="toggle"><input id="gs" type="checkbox" ${isNew || g.household_id ? 'checked' : ''}> Share with ${esc(state.household.name)}</label>
@@ -754,7 +765,7 @@ function openContribForm(goalId) {
   openModal(`Add to ${g.name}`, `<form id="cf">
     <div class="grid2"><div><label for="ca">Amount</label><input id="ca" type="number" inputmode="decimal" min="0.01" step="0.01" required></div>
       <div><label for="cd">Date</label><input id="cd" type="date" value="${today()}" required></div></div>
-    <label for="cn">Note <span class="hint">Optional</span></label><input id="cn" placeholder="e.g. October savings">
+    <label for="cn">Note</label><input id="cn" placeholder="e.g. October savings">
     <div style="height:16px"></div><button class="btn block" type="submit">Add money</button></form>`, o => {
     setTimeout(() => $('#ca', o).focus(), 50);
     $('#cf', o).onsubmit = async ev => {
@@ -871,7 +882,7 @@ function openHouseholdSetup(mode) {
   const create = mode === 'create';
   openModal(create ? 'Create household' : 'Join household', `<form id="hf">
     ${create ? `<label for="hn">Household name</label><input id="hn" value="Our home" required>`
-      : `<label for="hc">Invite code <span class="hint">Ask your partner for the 6-letter code</span></label><input id="hc" required maxlength="6" style="text-transform:uppercase;letter-spacing:.15em">`}
+      : `<label for="hc">Invite code</label><input id="hc" required maxlength="6" style="text-transform:uppercase;letter-spacing:.15em"><span class="hint" style="margin-top:4px">Ask your partner for the 6-letter code</span>`}
     <div style="height:16px"></div><button class="btn block" type="submit">${create ? 'Create household' : 'Join household'}</button></form>`, o => {
     $('#hf', o).onsubmit = async ev => {
       ev.preventDefault();
@@ -911,7 +922,7 @@ function openLoanForm() {
   openModal('I lent money', `<form id="lf"><label for="lb">To</label><select id="lb">${others.map(m => `<option value="${m.id}">${esc(m.display_name)}</option>`).join('')}</select>
     <div class="grid2"><div><label for="la">Amount</label><input id="la" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
       <div><label for="ld">Date</label><input id="ld" type="date" value="${today()}" required></div></div>
-    <label for="ln">What for? <span class="hint">Optional</span></label><input id="ln" placeholder="e.g. Car repair">
+    <label for="ln">What for?</label><input id="ln" placeholder="e.g. Car repair">
     <div style="height:16px"></div><button class="btn block" type="submit">Save loan</button></form>`, o => {
     $('#lf', o).onsubmit = async ev => {
       ev.preventDefault();
@@ -926,7 +937,7 @@ function openPaymentForm(loanId) {
   openModal('Record payment', `<p class="muted">${esc(memberName(l.borrower_id))} still owes ${money(left)} of ${money(l.amount)}.</p>
     <form id="pf"><div class="grid2"><div><label for="pa">Amount paid back</label><input id="pa" type="number" inputmode="decimal" step="0.01" min="0.01" max="${left}" value="${left}" required></div>
       <div><label for="pd">Date</label><input id="pd" type="date" value="${today()}" required></div></div>
-    <label for="pn">Note <span class="hint">Optional</span></label><input id="pn"><div style="height:16px"></div><button class="btn block" type="submit">Save payment</button></form>`, o => {
+    <label for="pn">Note</label><input id="pn"><div style="height:16px"></div><button class="btn block" type="submit">Save payment</button></form>`, o => {
     $('#pf', o).onsubmit = async ev => {
       ev.preventDefault();
       const amt = num($('#pa', o).value);
@@ -1109,7 +1120,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151848';
+const APP_VERSION = '202610151856';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
