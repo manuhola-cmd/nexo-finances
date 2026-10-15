@@ -606,7 +606,9 @@ function bindView() {
     const A = {
       toggle: () => togglePaid(id, date), goData: () => { state.tab = 'data'; render(); window.scrollTo(0, 0); },
       newGoal: () => openGoalForm(), moveLeft: () => moveLeftover(id),
-      catchUp: () => { if (confirm('Switch to paying it on time with this plan?')) applyCatchUp(id); },
+      catchUp: () => { const e = state.entries.find(x => x.id === id), cp = e && catchUpPlan(e); if (!cp) return;
+        const keep = cp.keepDates.length ? `Nothing changes until then: you still pay on ${cp.keepDates.map(niceDate).join(', ')}.\n\n` : '';
+        if (confirm(`${e.description}: starting ${monthName(cp.switchYm)} the app will schedule it on the ${e.due_day}th of each month.\n\n${keep}Apply this plan?`)) applyCatchUp(id); },
       autopayOn: async () => { const { error } = await db.from('entries').update({ on_autopay: true }).eq('id', id); if (error) return fail(error); toast('Marked as on autopay'); loadAll(); }, addToGoal: () => openContribForm(id), goalDetail: () => openGoalDetail(id),
       day: () => { state.calSel = state.calSel === date ? null : date; render(); },
       editEntry: () => openEntryEdit(id), filter: () => { state.dataFilter = el.dataset.v; render(); },
@@ -1231,7 +1233,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151905';
+const APP_VERSION = '202610151910';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
