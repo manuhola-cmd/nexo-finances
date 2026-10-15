@@ -161,6 +161,8 @@ details.drop .inner { padding: 0 16px 10px; border-top: 1px solid var(--line); }
 .goal .pct { font-family: var(--display); font-weight: 800; font-size: 1.5rem; color: var(--save); }
 .goal .bar { height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; display: flex; margin: 10px 0 8px; }
 .goal .bar span { display: block; height: 100%; }
+.goal .bar .proj-fill { background: repeating-linear-gradient(-45deg, var(--save) 0 5px, transparent 5px 10px); opacity: .7; }
+.surplus { margin-top: 10px; background: var(--save-soft); border-radius: 12px; padding: 10px 12px; font-size: .85rem; line-height: 1.45; }
 .who-split { display: flex; flex-wrap: wrap; gap: 12px; font-size: .82rem; color: var(--muted); }
 .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
 
@@ -518,7 +520,7 @@ function bindView() {
     const { act, id, date } = el.dataset;
     const A = {
       toggle: () => togglePaid(id, date), goData: () => { state.tab = 'data'; render(); window.scrollTo(0, 0); },
-      newGoal: openGoalForm, addToGoal: () => openContribForm(id), goalDetail: () => openGoalDetail(id),
+      newGoal: () => openGoalForm(), moveLeft: () => moveLeftover(id), addToGoal: () => openContribForm(id), goalDetail: () => openGoalDetail(id),
       day: () => { state.calSel = state.calSel === date ? null : date; render(); },
       editEntry: () => openEntryEdit(id), filter: () => { state.dataFilter = el.dataset.v; render(); },
       kind: () => { state.form = readForm(); state.form.kind = el.dataset.v; state.form.category = null; render(); },
@@ -669,6 +671,7 @@ function goalCard(g) {
   const by = {}; cs.forEach(c => by[c.user_id] = (by[c.user_id] || 0) + num(c.amount));
   const people = Object.keys(by);
   const shared = !!g.household_id;
+  const sp = g.tracks_surplus && g.owner_id === state.me.id ? surplusFor(g) : null;
   let due = '';
   if (g.target_date) {
     const months = Math.max(1, (parseD(g.target_date).getFullYear() - new Date().getFullYear()) * 12 + parseD(g.target_date).getMonth() - new Date().getMonth());
@@ -678,11 +681,46 @@ function goalCard(g) {
   return `<article class="goal">
     <div class="spread"><div style="min-width:0"><h3 class="ttl">${esc(g.name)}</h3>
       <div class="tiny muted">${shared ? '<span class="chip sh">Shared</span> ' : ''}${money0(total)} of ${money0(g.target_amount)}${due ? ' · ' + due : ''}</div></div>
-      <span class="pct">${Math.round(pct)}%</span></div>
-    <div class="bar">${people.map(id => `<span style="width:${(by[id] / num(g.target_amount) * 100).toFixed(1)}%;background:${memberColor(id)}"></span>`).join('')}</div>
+      <span class="pct">${Math.round(pct)}%${sp && sp.extra > 0 ? `<span class="tiny muted" style="display:block;text-align:right;font-family:var(--body);font-weight:600">${Math.round(Math.min(100, (total + sp.extra) / num(g.target_amount) * 100))}% with this month</span>` : ''}</span></div>
+    <div class="bar">${people.map(id => `<span style="width:${(by[id] / num(g.target_amount) * 100).toFixed(1)}%;background:${memberColor(id)}"></span>`).join('')}${sp ? `<span class="proj-fill" style="width:${Math.min(100 - pct, sp.extra / num(g.target_amount) * 100).toFixed(1)}%"></span>` : ''}</div>
     <div class="who-split">${people.length ? people.map(id => `<span><span class="dot" style="background:${memberColor(id)}"></span>${esc(id === state.me.id ? 'You' : memberName(id))} ${money0(by[id])}</span>`).join('') : '<span>No money added yet</span>'}</div>
+    ${sp ? surplusNote(g, sp) : ''}
     <div class="row" style="margin-top:12px"><button class="btn sm" data-act="addToGoal" data-id="${g.id}" style="flex:1">Add money</button><button class="btn sm ghost" data-act="goalDetail" data-id="${g.id}">History</button></div>
   </article>`;
+}
+// What's left over this month (and last month, if it was never moved) for a goal that fills with surplus
+function surplusFor(g) {
+  const ym = ymOf(new Date()), cur = monthSummary(ym);
+  const EXTRA_CATS = ['Food & Groceries', 'Entertainment', 'Personal', 'Other'];
+  const oneTime = cur.items.filter(it => it.e.kind === 'expense' && it.e.frequency === 'once' && EXTRA_CATS.includes(it.e.category));
+  const unplanned = oneTime.reduce((x, it) => x + (it.pay ? num(it.pay.amount) : num(it.e.amount)), 0);
+  const extra = Math.max(0, cur.leftOver);
+  const prevYm = nextMonth(ym, -1);
+  const created = (g.created_at || '').slice(0, 7);
+  const prev = created && created <= prevYm ? monthSummary(prevYm) : null;
+  return { ym, extra, short: Math.min(0, cur.leftOver), unplanned, oneTime, planned: extra + unplanned,
+    prevYm, prevLeft: prev && prev.leftOver > 0.009 ? prev.leftOver : 0 };
+}
+function surplusNote(g, sp) {
+  const mon = monthName(sp.ym).split(' ')[0];
+  const names = sp.oneTime.slice().sort((a, b) => num(b.e.amount) - num(a.e.amount)).slice(0, 3).map(it => esc(it.e.description)).join(', ');
+  let msg = sp.short < 0
+    ? `<span class="out">${mon} is ${money(-sp.short)} short</span>, so nothing extra for this goal yet.`
+    : `<b class="sv">${money(sp.extra)}</b> extra in ${mon} for this goal (striped part).`;
+  if (sp.unplanned > 0.009) msg += ` You had ${money(sp.planned)} before ${money(sp.unplanned)} in one-off spending${names ? ` (${names})` : ''}.`;
+  return `<div class="surplus">${msg}
+    ${sp.prevLeft ? `<div class="spread" style="margin-top:8px"><span>${monthName(sp.prevYm).split(' ')[0]} left you ${money(sp.prevLeft)}.</span>
+      <button class="btn sm" data-act="moveLeft" data-id="${g.id}">Move it here</button></div>` : ''}</div>`;
+}
+async function moveLeftover(goalId) {
+  const g = state.goals.find(x => x.id === goalId); if (!g) return;
+  const sp = surplusFor(g); if (!sp.prevLeft) return;
+  const [y, m] = sp.prevYm.split('-').map(Number);
+  const last = iso(new Date(y, m, 0));
+  const { data, error } = await db.from('goal_contributions').insert({ goal_id: g.id, amount: Math.round(sp.prevLeft * 100) / 100, contributed_on: last,
+    note: 'Left over from ' + monthName(sp.prevYm) }).select().single();
+  if (error) return fail(error);
+  state.contribs.push(data); toast(`${money(sp.prevLeft)} moved to ${g.name}`); rerender();
 }
 function openGoalForm(g) {
   const isNew = !g || !g.id; g = g && g.id ? g : { name: '', target_amount: '', target_date: '', household_id: null };
@@ -690,6 +728,8 @@ function openGoalForm(g) {
     <label for="gn">Name</label><input id="gn" required value="${esc(g.name)}" placeholder="e.g. Autopay cushion, Trip to Puerto Rico">
     <div class="grid2"><div><label for="ga">Goal amount</label><input id="ga" type="number" inputmode="decimal" min="1" step="0.01" required value="${esc(g.target_amount)}"></div>
       <div><label for="gd">By when <span class="hint">Optional</span></label><input id="gd" type="date" value="${esc(g.target_date || '')}"></div></div>
+    <label class="toggle"><input id="gt" type="checkbox" ${g.tracks_surplus ? 'checked' : ''}> Fill with what’s left each month</label>
+    <span class="hint">Shows this month’s extra money as a striped part of the bar, and offers to move last month’s leftover here.</span>
     ${state.household ? `<label class="toggle"><input id="gs" type="checkbox" ${isNew || g.household_id ? 'checked' : ''}> Share with ${esc(state.household.name)}</label>
       <span class="hint">Everyone in your household can see it and add money to it.</span>` : `<p class="hint" style="margin-top:10px">Join a household to share goals.</p>`}
     <div style="height:16px"></div><div class="row"><button class="btn" type="submit" style="flex:1">${isNew ? 'Create goal' : 'Save changes'}</button>
@@ -697,7 +737,7 @@ function openGoalForm(g) {
     $('#gf', o).onsubmit = async ev => {
       ev.preventDefault();
       const row = { name: $('#gn', o).value.trim(), target_amount: num($('#ga', o).value), target_date: $('#gd', o).value || null,
-        household_id: state.household && $('#gs', o)?.checked ? state.household.id : null };
+        household_id: state.household && $('#gs', o)?.checked ? state.household.id : null, tracks_surplus: $('#gt', o).checked };
       const { error } = isNew ? await db.from('goals').insert(row) : await db.from('goals').update(row).eq('id', g.id);
       if (error) return fail(error);
       closeModal(); toast(isNew ? 'Goal created' : 'Changes saved'); loadAll();
@@ -1069,7 +1109,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151843';
+const APP_VERSION = '202610151848';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
