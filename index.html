@@ -548,12 +548,6 @@ async function togglePaid(entryId, date) {
 function viewOverview() {
   const s = monthSummary(ymOf(new Date()));
   const noData = !state.entries.some(isMine);
-  if (noData) {
-    return `<section class="hero"><div class="lbl">Available to spend</div><div class="big">$0</div>
-      <div class="hint-line" style="color:var(--hero-ink);font-size:.95rem">Start by adding your income and your bills in the Data tab. Everything here fills in from that.</div>
-      <div style="height:14px"></div><button class="btn" data-act="goData" style="background:#fff;color:#182447">Add income and bills</button></section>
-      ${goalsSection()}`;
-  }
   const negative = s.available < 0;
   return `
     <section class="hero" aria-label="Available to spend">
@@ -564,9 +558,10 @@ function viewOverview() {
         <div><div class="k">Paid</div><div class="v">${money0(s.expPaid)}</div></div>
         <div><div class="k">Still to pay</div><div class="v">${money0(s.expDue)}</div></div>
       </div>
-      <div class="hint-line">${negative
+      ${noData ? `<div class="hint-line" style="color:var(--hero-ink);font-size:.92rem">Add your paycheck and your bills in the Data tab and everything here fills in.</div>
+        <div style="height:12px"></div><button class="btn sm" data-act="goData" style="background:#fff;color:#182447">Add income and bills</button>` : `<div class="hint-line">${negative
         ? `You’re short ${money(-s.available)} for the rest of this month’s bills${s.incDue > 0 ? `, before ${money(s.incDue)} of income still on its way` : ''}.`
-        : `This is what’s left after the bills still due this month${s.saved ? ` and ${money(s.saved)} you saved` : ''}.${s.incDue > 0 ? ` ${money(s.incDue)} more income is still on its way.` : ''}`}</div>
+        : `This is what’s left after the bills still due this month${s.saved ? ` and ${money(s.saved)} you saved` : ''}.${s.incDue > 0 ? ` ${money(s.incDue)} more income is still on its way.` : ''}`}</div>`}
     </section>
 
     <section class="card">
@@ -600,7 +595,7 @@ function cashFlowChart(s) {
   const bal = []; let run = 0;
   for (let d = 1; d <= n; d++) { run += deltaIn[d] - deltaOut[d]; bal[d] = run; }
   const W = 340, H = 180, L = 38, R = 8, T = 12, B = 32;
-  const lo = Math.min(0, ...bal.slice(1)), hi = Math.max(0, ...bal.slice(1), 1);
+  const lo = Math.min(0, ...bal.slice(1)), hi = Math.max(0, ...bal.slice(1), lo < 0 ? 1 : 100);
   const x = d => L + (d - 0.5) / n * (W - L - R);
   const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
   const todayD = ymOf(new Date()) === ym ? new Date().getDate() : (t > monthStart(ym) ? n : 0);
@@ -636,7 +631,7 @@ function breakdown(s) {
   const due = exp.filter(it => !it.pay), late = due.filter(it => it.date < today()).length;
   const open = state.dropOpen ? 'open' : '';
   return `<details class="drop" ${open} ontoggle="state.dropOpen=this.open">
-    <summary><div><h2>Payments due this month</h2><div class="small muted">${due.length ? `${due.length} left · ${money(s.expDue)}` : 'All paid'}${late ? ` · <span class="out">${late} late</span>` : ''}${exp.length - due.length ? ` · ${exp.length - due.length} paid` : ''}</div></div>
+    <summary><div><h2>Payments due this month</h2><div class="small muted">${due.length ? `${due.length} left · ${money(s.expDue)}` : exp.length ? 'All paid' : 'No payments added yet'}${late ? ` · <span class="out">${late} late</span>` : ''}${exp.length - due.length ? ` · ${exp.length - due.length} paid` : ''}</div></div>
       <span class="chev" aria-hidden="true">▾</span></summary>
     <div class="inner">${due.length ? `<ul class="list">${due.map(it => itemRow(it)).join('')}</ul>` : `<p class="empty">${exp.length ? 'Every payment this month is checked off.' : 'No payments this month.'}</p>`}</div>
   </details>`;
@@ -1054,7 +1049,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151805';
+const APP_VERSION = '202610151811';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
