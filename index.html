@@ -998,8 +998,7 @@ function planSection() {
         ${autopayToggle(e)}</li>` };
   }).sort((a, b) => a.order - b.order);
   const sa = setAsides();
-  return `${rows.length ? `<section class="card"><div class="card-head"><h2>Bills on time</h2></div><ul class="list">${rows.map(r => r.html).join('')}</ul></section>` : ''}
-    ${sa && sa.rows.length ? `<details class="drop"><summary><div><h2>From each paycheck</h2>
+  return `${sa && sa.rows.length ? `<details class="drop"><summary><div><h2>From each paycheck</h2>
         <div class="small muted">Set aside ${money(sa.total)} of ${money(sa.inc.amount)} · <span class="${sa.left >= 0 ? 'in' : 'out'}">${sa.left >= 0 ? money(sa.left) + ' left' : money(-sa.left) + ' short'}</span></div></div><span class="chev" aria-hidden="true">▾</span></summary>
       <div class="inner"><ul class="list">${sa.rows.map(r => `<li><div class="grow"><div class="ttl">${esc(r.e.description)}</div>
         <div class="tiny muted">${money(r.e.amount)} ${state.plans[r.e.id] ? 'monthly' : FREQ[r.e.frequency].toLowerCase()}</div></div><span class="amt">${money(r.per)}</span></li>`).join('')}</ul>
@@ -1301,7 +1300,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151937';
+const APP_VERSION = '202610151938';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
