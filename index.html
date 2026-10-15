@@ -3,151 +3,211 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#EEF2F1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1622" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F1F3F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nexo Finances">
 <title>Nexo Finances</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23182447'/><path d='M28 72V28l44 44V28' stroke='%2346D6A3' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23182447'/><path d='M28 72V28l44 44V28' stroke='%2346D6A3' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #EEF2F1; --surface: #FFFFFF; --sunk: #E3E9E7;
-  --ink: #17233A; --muted: #5B6678; --line: #D3DBD9;
-  --save: #0F7B5F; --save-soft: #DCF1E9;
-  --fee: #B42318; --fee-soft: #FBE4E1;
-  --accent: #2F4BB8; --accent-ink: #FFFFFF;
-  --m0: #0F7B5F; --m1: #6B45B8; --m2: #C27C0E; --m3: #2F7FB8;
+  --bg: #F1F3F7; --surface: #FFFFFF; --sunk: #E7EAF1; --line: #DCE1EA;
+  --ink: #141B2E; --muted: #5E6880;
+  --hero: #182447; --hero-2: #24356A; --hero-ink: #F3F6FF; --hero-muted: #AEB9D9;
+  --in: #0E9A6C; --in-soft: #DDF4EB;
+  --out: #D9473A; --out-soft: #FBE5E2;
+  --save: #6B4FD8; --save-soft: #ECE7FD;
+  --warn: #B86E00; --warn-soft: #FDF0D9;
+  --accent: #2E52D6; --accent-ink: #FFFFFF;
+  --m0: #2E52D6; --m1: #D14D8B; --m2: #C27C0E; --m3: #0E9A6C;
   --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
   color-scheme: light;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0F1622; --surface: #172131; --sunk: #1D2940;
-    --ink: #E7ECF3; --muted: #9AA6B8; --line: #26334A;
-    --save: #3CC79A; --save-soft: #12382D;
-    --fee: #F07158; --fee-soft: #3D1A16;
-    --accent: #7C95FF; --accent-ink: #0F1622;
-    --m0: #3CC79A; --m1: #A98BF0; --m2: #E8A93A; --m3: #62AEE6;
+    --bg: #0B1020; --surface: #141B30; --sunk: #1B2440; --line: #253055;
+    --ink: #E9EDF8; --muted: #98A3C0;
+    --hero: #1B2A57; --hero-2: #2B3F80; --hero-ink: #F3F6FF; --hero-muted: #AEB9D9;
+    --in: #46D6A3; --in-soft: #11352B;
+    --out: #FF7B6B; --out-soft: #3B1C1C;
+    --save: #A898FF; --save-soft: #272150;
+    --warn: #F2B24C; --warn-soft: #3A2C10;
+    --accent: #7D97FF; --accent-ink: #0B1020;
+    --m0: #7D97FF; --m1: #F08CBB; --m2: #F2B24C; --m3: #46D6A3;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0F1622; --surface: #172131; --sunk: #1D2940;
-  --ink: #E7ECF3; --muted: #9AA6B8; --line: #26334A;
-  --save: #3CC79A; --save-soft: #12382D;
-  --fee: #F07158; --fee-soft: #3D1A16;
-  --accent: #7C95FF; --accent-ink: #0F1622;
-  --m0: #3CC79A; --m1: #A98BF0; --m2: #E8A93A; --m3: #62AEE6;
+  --bg: #0B1020; --surface: #141B30; --sunk: #1B2440; --line: #253055;
+  --ink: #E9EDF8; --muted: #98A3C0;
+  --hero: #1B2A57; --hero-2: #2B3F80; --hero-ink: #F3F6FF; --hero-muted: #AEB9D9;
+  --in: #46D6A3; --in-soft: #11352B;
+  --out: #FF7B6B; --out-soft: #3B1C1C;
+  --save: #A898FF; --save-soft: #272150;
+  --warn: #F2B24C; --warn-soft: #3A2C10;
+  --accent: #7D97FF; --accent-ink: #0B1020;
+  --m0: #7D97FF; --m1: #F08CBB; --m2: #F2B24C; --m3: #46D6A3;
   color-scheme: dark;
 }
-*, *::before, *::after { box-sizing: inherit; }
-html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
-body {
-  margin: 0; min-height: 100%; background: var(--bg); color: var(--ink);
-  font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased;
-}
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
-  z-index: 10; background: var(--bg);
-}
-h1, h2, h3, .num { font-family: var(--display); letter-spacing: -0.01em; }
-h1 { font-size: 1.75rem; line-height: 1.15; margin: 0; font-weight: 800; }
-h2 { font-size: 1.2rem; margin: 0 0 .5rem; font-weight: 700; }
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top, 0px); }
+h1, h2, h3, .num { font-family: var(--display); letter-spacing: -0.015em; }
+h1 { font-size: 1.6rem; line-height: 1.15; margin: 0; font-weight: 800; }
+h2 { font-size: 1.15rem; margin: 0; font-weight: 700; }
 h3 { font-size: 1rem; margin: 0; font-weight: 700; }
 p { margin: 0 0 .75rem; }
-.muted { color: var(--muted); }
-.small { font-size: .875rem; }
-.wrap { max-width: 560px; margin: 0 auto; padding: 0 18px 110px; }
+.muted { color: var(--muted); } .small { font-size: .85rem; } .tiny { font-size: .75rem; }
+.in { color: var(--in); } .out { color: var(--out); } .sv { color: var(--save); } .warn { color: var(--warn); }
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
-/* header */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
-  display: flex; align-items: center; justify-content: space-between; padding: 14px 0 10px; }
-.icon-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
-  width: 40px; height: 40px; display: grid; place-items: center; font-size: 1.1rem; }
-.month-bar { display: flex; align-items: center; gap: 8px; margin: 4px 0 18px; }
-.month-bar .label { font-weight: 600; min-width: 130px; text-align: center; }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 14px 0 12px; gap: 12px; }
+.top .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; }
+.icon-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; width: 38px; height: 38px;
+  display: grid; place-items: center; font-size: 1rem; flex: none; }
+.month-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 6px; }
+.month-bar .label { font-weight: 700; font-family: var(--display); }
+.month-bar .icon-btn { border: 0; background: var(--sunk); width: 34px; height: 34px; }
 
-/* buttons */
-.btn { border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 600; background: var(--accent); color: var(--accent-ink); }
+.btn { border: 0; border-radius: 12px; padding: 11px 16px; font-weight: 600; background: var(--accent); color: var(--accent-ink); }
 .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
-.btn.danger { background: transparent; color: var(--fee); border: 1px solid var(--fee); }
-.btn.small { padding: 7px 12px; font-size: .875rem; border-radius: 9px; }
+.btn.soft { background: var(--sunk); color: var(--ink); }
+.btn.danger { background: transparent; color: var(--out); border: 1px solid var(--out); }
+.btn.sm { padding: 7px 12px; font-size: .85rem; border-radius: 9px; }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: .5; cursor: default; }
-.row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.spread { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 
-/* sections & lists */
-.section { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 16px; }
-.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-bottom: 14px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+/* hero */
+.hero { border-radius: 24px; padding: 20px 18px 18px; margin-bottom: 14px; color: var(--hero-ink);
+  background: radial-gradient(120% 140% at 100% 0%, var(--hero-2) 0%, var(--hero) 60%); position: relative; overflow: hidden; }
+.hero .lbl { color: var(--hero-muted); font-size: .9rem; font-weight: 600; }
+.hero .big { font-family: var(--display); font-weight: 800; font-size: clamp(2.4rem, 11vw, 3.4rem); line-height: 1.02; margin: 4px 0 14px; letter-spacing: -0.03em; }
+.hero .big.neg { color: #FFB0A6; }
+.hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.hero-stats > div { background: rgba(255,255,255,.08); border-radius: 14px; padding: 9px 10px; }
+.hero-stats .k { font-size: .72rem; color: var(--hero-muted); font-weight: 600; }
+.hero-stats .v { font-family: var(--display); font-weight: 700; font-size: 1.02rem; }
+.hero .hint-line { margin-top: 12px; font-size: .82rem; color: var(--hero-muted); }
+
+/* income vs expenses */
+.ive-row { margin: 10px 0; }
+.ive-row .spread { font-weight: 600; margin-bottom: 6px; }
+.track { height: 14px; border-radius: 7px; background: var(--sunk); overflow: hidden; position: relative; }
+.track > .plan { position: absolute; inset: 0 auto 0 0; border-radius: 7px; opacity: .3; }
+.track > .done { position: absolute; inset: 0 auto 0 0; border-radius: 7px; }
+.net { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 12px; }
+.net .num { font-size: 1.4rem; font-weight: 800; }
+
+/* chart */
+.chart { width: 100%; height: auto; display: block; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .zero { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 4; }
+.chart text { fill: var(--muted); font-size: 10px; font-family: var(--body); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-top: 6px; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+/* breakdown dropdown */
+details.drop { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); margin-bottom: 14px; overflow: hidden; }
+details.drop > summary { list-style: none; cursor: pointer; padding: 15px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+details.drop > summary::-webkit-details-marker { display: none; }
+details.drop > summary .chev { transition: transform .2s; color: var(--muted); }
+details.drop[open] > summary .chev { transform: rotate(180deg); }
+details.drop .inner { padding: 0 16px 10px; border-top: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { details.drop > summary .chev { transition: none; } }
+
+/* item rows */
 .list { list-style: none; margin: 0; padding: 0; }
-.list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
-.list li:first-child { border-top: 0; }
-.list .grow { flex: 1; min-width: 0; }
-.list .title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.amount { font-family: var(--display); font-weight: 700; white-space: nowrap; }
-.chip { display: inline-block; font-size: .75rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--sunk); color: var(--muted); }
-.chip.behind { background: var(--fee-soft); color: var(--fee); }
-.chip.autopay { background: var(--save-soft); color: var(--save); }
-.save { color: var(--save); } .fee { color: var(--fee); }
-.empty { padding: 18px 4px; color: var(--muted); }
-.clickable { cursor: pointer; }
-.clickable:hover .title { text-decoration: underline; }
+.list > li { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+.list > li:first-child { border-top: 0; }
+.grow { flex: 1; min-width: 0; }
+.ttl { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.amt { font-family: var(--display); font-weight: 700; white-space: nowrap; }
+.paid .ttl, .paid .amt { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
+.check { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); background: transparent; display: grid; place-items: center;
+  flex: none; color: transparent; font-weight: 800; font-size: .9rem; padding: 0; }
+.check.on { background: var(--in); border-color: var(--in); color: #fff; }
+.check.inc.on { background: var(--in); }
+.check:disabled { opacity: .45; cursor: default; }
+.ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; font-size: 1rem; }
+.ic.ex { background: var(--out-soft); } .ic.inc { background: var(--in-soft); }
+.chip { display: inline-block; font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--sunk); color: var(--muted); }
+.chip.late { background: var(--out-soft); color: var(--out); }
+.chip.sh { background: var(--save-soft); color: var(--save); }
+.empty { padding: 14px 2px; color: var(--muted); }
 
-/* bars */
-.bar { height: 10px; border-radius: 5px; background: var(--sunk); overflow: hidden; display: flex; }
-.bar > span { display: block; height: 100%; }
+/* goals */
+.goals { display: grid; gap: 12px; }
+.goal { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: var(--surface); }
+.goal .pct { font-family: var(--display); font-weight: 800; font-size: 1.5rem; color: var(--save); }
+.goal .bar { height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; display: flex; margin: 10px 0 8px; }
+.goal .bar span { display: block; height: 100%; }
+.who-split { display: flex; flex-wrap: wrap; gap: 12px; font-size: .82rem; color: var(--muted); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
 
-/* plan */
-.plan-hero { padding: 22px 18px; border-radius: 22px; background: var(--save-soft); color: var(--ink); margin-bottom: 16px; }
-.plan-hero .big { font-family: var(--display); font-weight: 800; font-size: 3rem; line-height: 1; color: var(--save); }
-.ladder { list-style: none; margin: 0; padding: 0; position: relative; }
-.ladder::before { content: ""; position: absolute; left: 47px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
-.ladder li { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 10px 0; position: relative; }
-.ladder .when { font-family: var(--display); font-weight: 700; text-align: center; font-size: .9rem; }
-.ladder .when span { display: inline-block; background: var(--surface); border: 2px solid var(--save); border-radius: 999px; padding: 3px 10px; position: relative; }
-.ladder .running { font-family: var(--display); font-weight: 700; color: var(--save); }
-.cushion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.cushion input { width: 130px; }
-
-/* household */
-.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .875rem; margin: 6px 0 12px; }
-.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
-.cat-row { padding: 10px 0; border-top: 1px solid var(--line); }
-.cat-row:first-child { border-top: 0; }
-.cat-row .line1 { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 600; }
-.cat-row .split { display: flex; gap: 14px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-top: 6px; }
-.code { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: .12em; }
+/* monthly */
+.proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.proj > div { background: var(--sunk); border-radius: 14px; padding: 10px; }
+.proj .k { font-size: .75rem; color: var(--muted); font-weight: 600; }
+.proj .v { font-family: var(--display); font-weight: 800; font-size: 1.1rem; }
+.proj .left { background: var(--hero); color: var(--hero-ink); }
+.proj .left .k { color: var(--hero-muted); }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal .dow { text-align: center; font-size: .72rem; color: var(--muted); font-weight: 600; padding-bottom: 4px; }
+.cal button.day { height: 56px; border: 1px solid transparent; background: var(--sunk); border-radius: 10px; padding: 4px 2px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1px; min-width: 0; }
+.cal button.day .n { font-weight: 700; font-size: .85rem; }
+.cal button.day .a { font-size: .6rem; letter-spacing: -0.03em; font-weight: 700; line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal button.day .dots { display: flex; gap: 2px; margin-top: auto; padding-bottom: 2px; }
+.cal button.day .dots i { width: 5px; height: 5px; border-radius: 50%; display: block; }
+.cal button.day.today { border-color: var(--accent); }
+.cal button.day.sel { background: var(--accent); color: var(--accent-ink); }
+.cal button.day.sel .a { color: inherit !important; }
+.cal .blank { height: 56px; }
 
 /* forms */
-label { display: block; font-weight: 600; font-size: .9rem; margin: 12px 0 4px; }
-.hint { font-weight: 400; color: var(--muted); font-size: .8rem; display: block; }
-input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
-.check { display: flex; gap: 10px; align-items: center; font-weight: 500; }
-.check input { width: 20px; height: 20px; }
+label { display: block; font-weight: 600; font-size: .88rem; margin: 12px 0 5px; }
+.hint { font-weight: 400; color: var(--muted); font-size: .78rem; display: block; }
+input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); }
+input[type=checkbox] { width: 20px; height: 20px; padding: 0; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.seg { display: flex; gap: 4px; background: var(--sunk); padding: 4px; border-radius: 12px; }
+.seg button { flex: 1; border: 0; background: none; padding: 9px 6px; border-radius: 9px; font-weight: 600; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.seg.kind button[aria-pressed="true"][data-v="expense"] { color: var(--out); }
+.seg.kind button[aria-pressed="true"][data-v="income"] { color: var(--in); }
+.toggle { display: flex; gap: 10px; align-items: center; font-weight: 500; margin-top: 12px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.filters button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: .85rem; font-weight: 600; color: var(--muted); }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 /* nav */
-.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line);
-  padding-bottom: env(safe-area-inset-bottom, 0px); }
-.nav .inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
-.nav button { background: none; border: 0; padding: 9px 2px 10px; font-size: .75rem; font-weight: 600; color: var(--muted); display: grid; justify-items: center; gap: 2px; }
-.nav button .ic { font-size: 1.25rem; line-height: 1; filter: grayscale(1); opacity: .7; }
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.nav .inner { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.nav button { background: none; border: 0; padding: 9px 2px 10px; font-size: .74rem; font-weight: 600; color: var(--muted); display: grid; justify-items: center; gap: 3px; }
+.nav button svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .nav button[aria-current="page"] { color: var(--accent); }
-.nav button[aria-current="page"] .ic { filter: none; opacity: 1; }
 
 /* modal */
-.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(10, 16, 28, .5); display: flex; align-items: flex-end; justify-content: center; }
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(8, 12, 26, .55); display: flex; align-items: flex-end; justify-content: center; }
 .sheet { background: var(--surface); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; border-radius: 22px 22px 0 0;
   padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px)); animation: rise .2s ease-out; }
 @media (min-width: 620px) { .overlay { align-items: center; } .sheet { border-radius: 22px; } }
@@ -155,17 +215,15 @@ input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var
 @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 
-/* auth */
 .auth { max-width: 420px; margin: 0 auto; padding: 48px 20px; }
-.auth h1 { font-size: 2.6rem; margin-bottom: 8px; }
-.tabs2 { display: flex; gap: 6px; background: var(--sunk); padding: 4px; border-radius: 12px; margin: 22px 0 6px; }
-.tabs2 button { flex: 1; border: 0; background: none; padding: 9px; border-radius: 9px; font-weight: 600; color: var(--muted); }
-.tabs2 button[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
-
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 30;
-  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; max-width: 90vw; }
-.toast.err { background: var(--fee); color: #fff; }
+.auth .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.auth h1 { font-size: 2.3rem; }
+.code { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: .12em; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; max-width: 90vw; text-align: center; }
+.toast.err { background: var(--out); color: #fff; }
 .loading { text-align: center; padding: 80px 20px; color: var(--muted); }
+.sec-title { margin: 22px 2px 10px; }
 </style>
 </head>
 <body>
@@ -173,113 +231,183 @@ input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script>
-/* ==========================================================
-   STEP 1 OF SETUP: paste your two Supabase values here.
-   (Supabase > Project Settings > API, or the "Connect" button)
-   ========================================================== */
 const SUPABASE_URL = 'https://cuohvucnwweeednvkxqb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_tfF5BGmg1TCrSSmcyeZqPw_N8C6-yuD';
 
 /* ---------- constants ---------- */
-const CATEGORIES = ['Housing', 'Food & Groceries', 'Utilities', 'Phone & Internet', 'Transportation',
+const EXPENSE_CATS = ['Housing', 'Food & Groceries', 'Utilities', 'Phone & Internet', 'Transportation', 'Subscriptions',
   'Entertainment', 'Health', 'Insurance', 'Debt', 'Kids', 'Personal', 'Other'];
+const INCOME_CATS = ['Salary', 'Side income', 'Refund', 'Gift', 'Other income'];
+const CAT_ICON = { 'Housing': '🏠', 'Food & Groceries': '🛒', 'Utilities': '💡', 'Phone & Internet': '📱', 'Transportation': '🚗',
+  'Subscriptions': '📺', 'Entertainment': '🎬', 'Health': '🩺', 'Insurance': '🛡️', 'Debt': '💳', 'Kids': '🧸', 'Personal': '👤',
+  'Other': '•', 'Salary': '💼', 'Side income': '🧰', 'Refund': '↩︎', 'Gift': '🎁', 'Other income': '＋' };
+const FREQ = { once: 'One time', weekly: 'Weekly', biweekly: 'Every 2 weeks', monthly: 'Monthly', yearly: 'Yearly', installments: 'Installment plan' };
 const MEMBER_COLORS = ['var(--m0)', 'var(--m1)', 'var(--m2)', 'var(--m3)'];
-const STATUS_LABEL = { behind: 'Paying late', on_time: 'On time', autopay: 'Autopay' };
+const ICONS = {
+  overview: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>',
+  monthly: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  household: '<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>',
+  data: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="4"/></svg>'
+};
 
 /* ---------- state ---------- */
 let db = null;
 const state = {
   session: null, me: null, household: null, members: [],
-  bills: [], tx: [], loans: [], payments: [],
-  tab: 'me', month: ymOf(new Date()), authMode: 'signin'
+  entries: [], payments: [], goals: [], contribs: [], loans: [], loanPays: [],
+  tab: 'overview', month: ymOf(new Date()), calSel: null, dataFilter: 'all', authMode: 'signin',
+  form: { kind: 'expense' }
 };
 
-/* ---------- small helpers ---------- */
-const $ = (sel, root = document) => root.querySelector(sel);
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
 const app = () => document.getElementById('app');
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const usd0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 function money(n) { return usd.format(Number(n) || 0); }
+function money0(n) { return usd0.format(Number(n) || 0); }
+function short$(n) { n = Math.abs(n); return n >= 1000 ? '$' + (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : '$' + Math.round(n); }
 function num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : Math.round(n * 100) / 100; }
 function pad(n) { return String(n).padStart(2, '0'); }
+function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function parseD(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
 function ymOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
-function today() { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function today() { return iso(new Date()); }
 function monthStart(ym) { return ym + '-01'; }
 function nextMonth(ym, delta = 1) { const [y, m] = ym.split('-').map(Number); return ymOf(new Date(y, m - 1 + delta, 1)); }
+function daysIn(ym) { const [y, m] = ym.split('-').map(Number); return new Date(y, m, 0).getDate(); }
 function monthName(ym) { const [y, m] = ym.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
-function shortMonth(offset) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + offset); return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }); }
-function ordinal(n) { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
-function niceDate(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function niceDate(s) { return parseD(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function longDate(s) { return parseD(s).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+function dayDiff(a, b) { return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5); }
 function memberName(id) { const m = state.members.find(x => x.id === id); return m ? m.display_name : 'Someone'; }
 function memberColor(id) { const i = state.members.findIndex(x => x.id === id); return MEMBER_COLORS[(i < 0 ? 0 : i) % MEMBER_COLORS.length]; }
-function catOptions(sel) { return CATEGORIES.map(c => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join(''); }
-function savingsOf(b) { return (b.status === 'behind' ? num(b.late_fee) : 0) + (b.status !== 'autopay' ? num(b.autopay_discount) : 0); }
+function initials(n) { return (n || '?').trim().slice(0, 1).toUpperCase(); }
+function catOptions(kind, sel) { return (kind === 'income' ? INCOME_CATS : EXPENSE_CATS).map(c => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join(''); }
+const isMine = e => e.user_id === state.me.id;
 
 function toast(msg, isErr = false) {
-  const t = document.createElement('div');
-  t.className = 'toast' + (isErr ? ' err' : '');
-  t.setAttribute('role', 'status');
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), isErr ? 4500 : 2200);
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div'); t.className = 'toast' + (isErr ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), isErr ? 4500 : 2200);
 }
 function fail(error) { console.error(error); toast(error?.message || 'Something went wrong. Check your connection and try again.', true); }
 
-/* ---------- modal ---------- */
 function openModal(title, bodyHtml, onMount) {
   closeModal();
-  const o = document.createElement('div');
-  o.className = 'overlay'; o.id = 'overlay';
+  const o = document.createElement('div'); o.className = 'overlay'; o.id = 'overlay';
   o.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
-    <div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" aria-label="Close" data-close>✕</button></div>
-    ${bodyHtml}</div>`;
+    <div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" aria-label="Close" data-close>✕</button></div>${bodyHtml}</div>`;
   o.addEventListener('click', e => { if (e.target === o || e.target.closest('[data-close]')) closeModal(); });
   document.body.appendChild(o);
-  const first = o.querySelector('input, select, textarea');
-  if (first) setTimeout(() => first.focus(), 50);
   if (onMount) onMount(o);
 }
 function closeModal() { const o = document.getElementById('overlay'); if (o) o.remove(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* ==========================================================
-   STARTUP
+   SCHEDULE ENGINE — turns an entry into dated occurrences
+   ========================================================== */
+function addMonthsClamp(start, k) {
+  const y = start.getFullYear(), m = start.getMonth() + k;
+  const last = new Date(y, m + 1, 0).getDate();
+  return new Date(y, m, Math.min(start.getDate(), last));
+}
+// occurrences in [fromIso, toIso)
+function occurrences(e, fromIso, toIso) {
+  const out = [], s = parseD(e.start_date), from = parseD(fromIso), to = parseD(toIso);
+  const end = e.end_date ? parseD(e.end_date) : null;
+  const ok = d => d >= from && d < to && (!end || d <= end);
+  const f = e.frequency;
+  if (f === 'once') { if (ok(s)) out.push(iso(s)); return out; }
+  if (f === 'weekly' || f === 'biweekly') {
+    const step = f === 'weekly' ? 7 : 14;
+    let k = Math.max(0, Math.floor(dayDiff(s, from) / step));
+    for (let guard = 0; guard < 600; guard++, k++) {
+      const d = new Date(s.getFullYear(), s.getMonth(), s.getDate() + k * step);
+      if (d >= to || (end && d > end)) break;
+      if (ok(d)) out.push(iso(d));
+    }
+    return out;
+  }
+  const stepM = f === 'yearly' ? 12 : 1;
+  const max = f === 'installments' ? (e.installments || 1) : Infinity;
+  const monthsBetween = (from.getFullYear() - s.getFullYear()) * 12 + (from.getMonth() - s.getMonth());
+  let k = Math.max(0, Math.floor(monthsBetween / stepM) - 1);
+  for (let guard = 0; guard < 600 && k < max; guard++, k++) {
+    const d = addMonthsClamp(s, k * stepM);
+    if (d >= to || (end && d > end)) break;
+    if (ok(d)) out.push(iso(d));
+  }
+  return out;
+}
+function payFor(entryId, date) { return state.payments.find(p => p.entry_id === entryId && p.due_date === date) || null; }
+// all occurrences in a month for a set of entries
+function monthItems(ym, entries) {
+  const from = monthStart(ym), to = monthStart(nextMonth(ym));
+  const items = [];
+  entries.forEach(e => occurrences(e, from, to).forEach(date => items.push({ e, date, pay: payFor(e.id, date) })));
+  return items.sort((a, b) => a.date.localeCompare(b.date) || (a.e.kind === 'income' ? -1 : 1));
+}
+function installmentNo(e, date) {
+  if (e.frequency !== 'installments') return '';
+  const s = parseD(e.start_date), d = parseD(date);
+  const k = (d.getFullYear() - s.getFullYear()) * 12 + (d.getMonth() - s.getMonth()) + 1;
+  return ` ${k} of ${e.installments}`;
+}
+function nextDue(e) {
+  const t = today(), horizon = iso(new Date(new Date().getFullYear() + 2, new Date().getMonth(), 1));
+  const back = iso(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const occ = occurrences(e, back, horizon);
+  const overdue = occ.filter(d => d < t && !payFor(e.id, d));
+  const next = occ.find(d => d >= t && !payFor(e.id, d));
+  return { overdue, next };
+}
+function monthSummary(ym) {
+  const items = monthItems(ym, state.entries.filter(isMine));
+  const s = { items, incPlan: 0, incGot: 0, expPlan: 0, expPaid: 0, saved: 0 };
+  items.forEach(it => {
+    const a = it.pay ? num(it.pay.amount) : num(it.e.amount);
+    if (it.e.kind === 'income') { s.incPlan += a; if (it.pay) s.incGot += a; }
+    else { s.expPlan += a; if (it.pay) s.expPaid += a; }
+  });
+  s.saved = state.contribs.filter(c => c.user_id === state.me.id && c.contributed_on.startsWith(ym)).reduce((x, c) => x + num(c.amount), 0);
+  s.expDue = s.expPlan - s.expPaid;
+  s.incDue = s.incPlan - s.incGot;
+  s.available = s.incGot - s.expPaid - s.expDue - s.saved;  // money in hand after covering the rest of this month's bills
+  s.leftOver = s.incPlan - s.expPlan - s.saved;
+  return s;
+}
+
+/* ==========================================================
+   STARTUP & AUTH
    ========================================================== */
 async function init() {
-  if (SUPABASE_URL.startsWith('PASTE') || SUPABASE_KEY.startsWith('PASTE')) {
-    app().innerHTML = `<div class="auth"><h1>Almost there</h1>
-      <p>Open <b>index.html</b> and paste your Supabase project URL and key at the top of the script, where it says “STEP 1 OF SETUP”.</p></div>`;
-    return;
-  }
-  if (!window.supabase) { app().innerHTML = `<div class="auth"><h1>Can’t connect</h1><p>The app couldn’t load. Check your internet connection and refresh.</p></div>`; return; }
+  if (!window.supabase) { app().innerHTML = `<div class="auth"><h1>Can’t connect</h1><p>Check your internet connection and refresh.</p></div>`; return; }
   db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const { data } = await db.auth.getSession();
   state.session = data.session;
-  db.auth.onAuthStateChange((_event, session) => {
+  db.auth.onAuthStateChange((_ev, session) => {
     const wasIn = !!state.session; state.session = session;
-    if (!session) renderAuth();
-    else if (!wasIn) setTimeout(loadAll, 0);
+    if (!session) renderAuth(); else if (!wasIn) setTimeout(loadAll, 0);
   });
   if (state.session) loadAll(); else renderAuth();
 }
-
-/* ---------- auth screen ---------- */
 function renderAuth() {
   const up = state.authMode === 'signup';
   app().innerHTML = `<div class="auth">
-    <h1>Nexo Finances</h1>
-    <p class="muted">Bills, catch-up plan, and what each of us puts into the house.</p>
-    <div class="tabs2" role="group">
-      <button aria-pressed="${!up}" data-mode="signin">Sign in</button>
-      <button aria-pressed="${up}" data-mode="signup">Create account</button>
-    </div>
+    <div class="brand"><svg width="48" height="48" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#182447"/><path d="M28 72V28l44 44V28" stroke="#46D6A3" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Nexo Finances</h1></div>
+    <p class="muted">Your money and your household’s, in one place.</p>
+    <div class="seg" role="group" style="margin:22px 0 6px">
+      <button aria-pressed="${!up}" data-mode="signin">Sign in</button><button aria-pressed="${up}" data-mode="signup">Create account</button></div>
     <form id="authForm">
-      ${up ? `<label for="an">Your name</label><input id="an" required autocomplete="given-name" placeholder="e.g. Carlos">` : ''}
+      ${up ? `<label for="an">Your name</label><input id="an" required autocomplete="given-name" placeholder="e.g. Manuel">` : ''}
       <label for="ae">Email</label><input id="ae" type="email" required autocomplete="email">
       <label for="ap">Password <span class="hint">At least 6 characters</span></label>
       <input id="ap" type="password" required minlength="6" autocomplete="${up ? 'new-password' : 'current-password'}">
-      <div style="height:16px"></div>
-      <button class="btn block" type="submit">${up ? 'Create account' : 'Sign in'}</button>
+      <div style="height:16px"></div><button class="btn block" type="submit">${up ? 'Create account' : 'Sign in'}</button>
     </form></div>`;
   app().querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { state.authMode = b.dataset.mode; renderAuth(); });
   $('#authForm').onsubmit = async e => {
@@ -288,9 +416,9 @@ function renderAuth() {
     const email = $('#ae').value.trim(), password = $('#ap').value;
     try {
       if (up) {
-        const { data, error } = await db.auth.signUp({ email, password, options: { data: { display_name: $('#an').value.trim() } } });
+        const { data, error } = await db.auth.signUp({ email, password, options: { data: { display_name: $('#an').value.trim() }, emailRedirectTo: location.href.split('#')[0] } });
         if (error) throw error;
-        if (!data.session) { toast('Account created. Check your email to confirm it, then sign in.'); state.authMode = 'signin'; renderAuth(); }
+        if (!data.session) { toast('Account created. Confirm it from your email, then sign in.'); state.authMode = 'signin'; renderAuth(); }
       } else {
         const { error } = await db.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -303,373 +431,384 @@ function renderAuth() {
    DATA
    ========================================================== */
 async function loadAll() {
-  app().innerHTML = `<div class="loading">Loading Nexo Finances…</div>`;
+  if (!state.me) app().innerHTML = `<div class="loading">Loading Nexo Finances…</div>`;
   try {
     const uid = state.session.user.id;
     const { data: me, error: e1 } = await db.from('profiles').select('*').eq('id', uid).single();
     if (e1) throw e1;
-    state.me = me;
-    state.household = null; state.members = [me];
+    state.me = me; state.household = null; state.members = [me];
     if (me.household_id) {
       const [{ data: h }, { data: mem }] = await Promise.all([
         db.from('households').select('*').eq('id', me.household_id).single(),
-        db.from('profiles').select('*').eq('household_id', me.household_id).order('created_at')
-      ]);
+        db.from('profiles').select('*').eq('household_id', me.household_id).order('created_at')]);
       state.household = h; state.members = mem && mem.length ? mem : [me];
     }
-    const [{ data: bills, error: e2 }, { data: loans, error: e3 }, { data: pays, error: e4 }] = await Promise.all([
-      db.from('bills').select('*').eq('user_id', uid).order('due_day', { nullsFirst: false }),
+    const res = await Promise.all([
+      db.from('entries').select('*').order('start_date'),
+      db.from('entry_payments').select('*'),
+      db.from('goals').select('*').order('created_at'),
+      db.from('goal_contributions').select('*').order('contributed_on'),
       db.from('loans').select('*').order('lent_on', { ascending: false }),
-      db.from('loan_payments').select('*').order('paid_on')
-    ]);
-    if (e2 || e3 || e4) throw (e2 || e3 || e4);
-    state.bills = bills || []; state.loans = loans || []; state.payments = pays || [];
-    await loadMonth();
+      db.from('loan_payments').select('*').order('paid_on')]);
+    const err = res.find(r => r.error); if (err) throw err.error;
+    [state.entries, state.payments, state.goals, state.contribs, state.loans, state.loanPays] = res.map(r => r.data || []);
     render();
   } catch (err) {
     fail(err);
     app().innerHTML = `<div class="auth"><h1>Couldn’t load</h1><p>${esc(err.message || '')}</p>
-      <p class="muted small">If this is your first time, make sure you ran schema.sql in the Supabase SQL Editor.</p>
       <button class="btn" onclick="loadAll()">Try again</button> <button class="btn ghost" onclick="db.auth.signOut()">Sign out</button></div>`;
   }
 }
-async function loadMonth() {
-  const { data, error } = await db.from('transactions').select('*')
-    .gte('spent_on', monthStart(state.month)).lt('spent_on', monthStart(nextMonth(state.month)))
-    .order('spent_on', { ascending: false }).order('created_at', { ascending: false });
-  if (error) throw error;
-  state.tx = data || [];
-}
-async function changeMonth(delta) {
-  state.month = nextMonth(state.month, delta);
-  try { await loadMonth(); render(); } catch (err) { fail(err); }
-}
-const myTx = () => state.tx.filter(t => t.user_id === state.me.id);
-const householdTx = () => state.tx.filter(t => t.is_household);
 
 /* ==========================================================
    LAYOUT
    ========================================================== */
-const TABS = [
-  ['me', '👤', 'Me'], ['bills', '🧾', 'Bills'], ['plan', '🪜', 'Plan'],
-  ['household', '🏡', 'Household'], ['loans', '🤝', 'Loans']
-];
+const TABS = [['overview', 'Overview'], ['monthly', 'Monthly'], ['household', 'Household'], ['data', 'Data']];
 function render() {
-  const view = { me: viewMe, bills: viewBills, plan: viewPlan, household: viewHousehold, loans: viewLoans }[state.tab];
-  const showMonth = ['me', 'household'].includes(state.tab);
-  app().innerHTML = `
-    <div class="wrap">
-      <header class="top">
-        <h1>${esc(TABS.find(t => t[0] === state.tab)[2] === 'Me' ? 'Hi, ' + state.me.display_name : TABS.find(t => t[0] === state.tab)[2])}</h1>
-        <button class="icon-btn" aria-label="Settings" id="settingsBtn">⚙︎</button>
-      </header>
-      ${showMonth ? `<div class="month-bar">
-        <button class="icon-btn" aria-label="Previous month" id="prevM">‹</button>
-        <span class="label">${monthName(state.month)}</span>
-        <button class="icon-btn" aria-label="Next month" id="nextM">›</button></div>` : ''}
-      <main id="view">${view()}</main>
-    </div>
+  const views = { overview: viewOverview, monthly: viewMonthly, household: viewHousehold, data: viewData };
+  const showMonth = state.tab !== 'data';
+  const title = { overview: 'Hi, ' + state.me.display_name, monthly: 'Monthly', household: state.household ? state.household.name : 'Household', data: 'Data' }[state.tab];
+  const scroll = window.scrollY;
+  app().innerHTML = `<div class="wrap">
+      <header class="top"><div class="who"><span class="avatar" style="background:${memberColor(state.me.id)}">${esc(initials(state.me.display_name))}</span>
+        <div style="min-width:0"><h1 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(title)}</h1></div></div>
+        <button class="icon-btn" aria-label="Settings" id="settingsBtn">⚙︎</button></header>
+      ${showMonth ? `<div class="month-bar"><button class="icon-btn" aria-label="Previous month" id="prevM">‹</button>
+        <span class="label">${monthName(state.month)}</span><button class="icon-btn" aria-label="Next month" id="nextM">›</button></div>` : ''}
+      <main id="view">${views[state.tab]()}</main></div>
     <nav class="nav" aria-label="Sections"><div class="inner">
-      ${TABS.map(([id, ic, label]) => `<button data-tab="${id}" ${state.tab === id ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${ic}</span>${label}</button>`).join('')}
+      ${TABS.map(([id, label]) => `<button data-tab="${id}" ${state.tab === id ? 'aria-current="page"' : ''}>${ICONS[id]}${label}</button>`).join('')}
     </div></nav>`;
   app().querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; render(); window.scrollTo(0, 0); });
   $('#settingsBtn').onclick = openSettings;
-  if (showMonth) { $('#prevM').onclick = () => changeMonth(-1); $('#nextM').onclick = () => changeMonth(1); }
+  if (showMonth) {
+    $('#prevM').onclick = () => { state.month = nextMonth(state.month, -1); state.calSel = null; render(); };
+    $('#nextM').onclick = () => { state.month = nextMonth(state.month, 1); state.calSel = null; render(); };
+  }
   bindView();
+  window.scrollTo(0, scroll);
 }
-// one delegated click handler for everything inside the view
+function rerender() { render(); }
 function bindView() {
-  $('#view').onclick = e => {
+  const v = $('#view');
+  v.onclick = e => {
     const el = e.target.closest('[data-act]'); if (!el) return;
-    const { act, id } = el.dataset;
-    const actions = {
-      addExpense: () => openExpenseForm(), delExpense: () => deleteExpense(id), paid: () => markPaid(id),
-      addBill: () => openBillForm(), editBill: () => openBillForm(state.bills.find(b => b.id === id)),
-      fixed: () => markFixed(id), saveCushion: saveCushion,
+    const { act, id, date } = el.dataset;
+    const A = {
+      toggle: () => togglePaid(id, date), goData: () => { state.tab = 'data'; render(); window.scrollTo(0, 0); },
+      newGoal: openGoalForm, addToGoal: () => openContribForm(id), goalDetail: () => openGoalDetail(id),
+      day: () => { state.calSel = state.calSel === date ? null : date; render(); },
+      editEntry: () => openEntryEdit(id), filter: () => { state.dataFilter = el.dataset.v; render(); },
+      kind: () => { state.form = readForm(); state.form.kind = el.dataset.v; state.form.category = null; render(); },
       createHH: () => openHouseholdSetup('create'), joinHH: () => openHouseholdSetup('join'),
       newLoan: openLoanForm, payLoan: () => openPaymentForm(id), delLoan: () => deleteLoan(id), loanHistory: () => openLoanHistory(id)
     };
-    if (actions[act]) actions[act]();
+    if (A[act]) A[act]();
   };
+  const f = $('#entryForm', v); if (f) bindEntryForm(f);
+}
+
+/* ---------- shared pieces ---------- */
+function itemRow(it, opts = {}) {
+  const e = it.e, inc = e.kind === 'income', paid = !!it.pay, mine = isMine(e);
+  const late = !paid && it.date < today();
+  const amount = paid ? num(it.pay.amount) : num(e.amount);
+  const meta = [opts.showDate !== false ? niceDate(it.date) : '', FREQ[e.frequency] + installmentNo(e, it.date)]
+    .concat(!mine ? [memberName(e.user_id)] : []).filter(Boolean).join(' · ');
+  const label = inc ? (paid ? 'Received' : 'Mark received') : (paid ? 'Paid' : 'Mark paid');
+  return `<li class="${paid ? 'paid' : ''}">
+    <button class="check ${inc ? 'inc' : ''} ${paid ? 'on' : ''}" aria-pressed="${paid}" aria-label="${label}: ${esc(e.description)}"
+      ${mine ? `data-act="toggle" data-id="${e.id}" data-date="${it.date}"` : 'disabled'}>✓</button>
+    <div class="grow"><div class="ttl">${esc(e.description)}</div>
+      <div class="tiny muted">${esc(meta)} ${late ? `<span class="chip late">${inc ? 'Not received yet' : 'Late'}</span>` : ''}</div></div>
+    <span class="amt ${inc ? 'in' : ''}">${inc ? '+' : '−'}${money(amount)}</span></li>`;
+}
+async function togglePaid(entryId, date) {
+  const e = state.entries.find(x => x.id === entryId); if (!e) return;
+  const p = payFor(entryId, date);
+  if (p) {
+    const { error } = await db.from('entry_payments').delete().eq('id', p.id);
+    if (error) return fail(error);
+    state.payments = state.payments.filter(x => x.id !== p.id);
+    toast(e.kind === 'income' ? 'Marked as not received' : 'Marked as not paid');
+  } else {
+    const { data, error } = await db.from('entry_payments').insert({ entry_id: e.id, due_date: date, amount: num(e.amount), paid_on: today() }).select().single();
+    if (error) return fail(error);
+    state.payments.push(data);
+    toast(e.kind === 'income' ? `${e.description} received: +${money(e.amount)}` : `${e.description} paid: −${money(e.amount)}`);
+  }
+  rerender();
 }
 
 /* ==========================================================
-   ME
+   OVERVIEW
    ========================================================== */
-function viewMe() {
-  const mine = myTx();
-  const total = mine.reduce((s, t) => s + num(t.amount), 0);
-  const paidIds = new Set(mine.filter(t => t.bill_id).map(t => t.bill_id));
-  const upcoming = state.bills.filter(b => b.status !== 'autopay' && !paidIds.has(b.id));
-  const isCurrent = state.month === ymOf(new Date());
-  const dayNow = new Date().getDate();
-
-  const byCat = {};
-  mine.forEach(t => byCat[t.category] = (byCat[t.category] || 0) + num(t.amount));
-  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-  const max = cats.length ? cats[0][1] : 1;
-
+function viewOverview() {
+  const s = monthSummary(state.month);
+  const isNow = state.month === ymOf(new Date());
+  const noData = !state.entries.some(isMine);
+  if (noData) {
+    return `<section class="hero"><div class="lbl">Available to spend</div><div class="big">$0</div>
+      <div class="hint-line" style="color:var(--hero-ink);font-size:.95rem">Start by adding your income and your bills in the Data tab. Everything here fills in from that.</div>
+      <div style="height:14px"></div><button class="btn" data-act="goData" style="background:#fff;color:#182447">Add income and bills</button></section>
+      ${goalsSection()}`;
+  }
+  const negative = s.available < 0;
   return `
-    <section class="section">
-      <div class="section-head">
-        <div><div class="muted small">I spent this month</div><div class="num" style="font-size:2.2rem;font-weight:800;line-height:1.1">${money(total)}</div></div>
-        <button class="btn" data-act="addExpense">Add expense</button>
+    <section class="hero" aria-label="Available to spend">
+      <div class="lbl">${isNow ? 'Available to spend' : 'Available to spend in ' + monthName(state.month).split(' ')[0]}</div>
+      <div class="big ${negative ? 'neg' : ''}">${negative ? '−' : ''}${money(Math.abs(s.available))}</div>
+      <div class="hero-stats">
+        <div><div class="k">Received</div><div class="v">${money0(s.incGot)}</div></div>
+        <div><div class="k">Paid</div><div class="v">${money0(s.expPaid)}</div></div>
+        <div><div class="k">Still to pay</div><div class="v">${money0(s.expDue)}</div></div>
       </div>
+      <div class="hint-line">${negative
+        ? `You’re short ${money(-s.available)} for the rest of this month’s bills${s.incDue > 0 ? `, before ${money(s.incDue)} of income still on its way` : ''}.`
+        : `This is what’s left after the bills still due this month${s.saved ? ` and ${money(s.saved)} you saved` : ''}.${s.incDue > 0 ? ` ${money(s.incDue)} more income is still on its way.` : ''}`}</div>
     </section>
 
-    <section class="section">
-      <h2>Bills to pay</h2>
-      ${upcoming.length ? `<ul class="list">${upcoming.map(b => {
-        let when = b.due_day ? `Pay by the ${ordinal(b.due_day)}` : 'No due day set';
-        let tone = '';
-        if (isCurrent && b.due_day) {
-          const left = b.due_day - dayNow;
-          if (left < 0) { when = `Due the ${ordinal(b.due_day)}, it’s late`; tone = 'fee'; }
-          else if (left <= 5) { when = left === 0 ? 'Due today' : `Due in ${left} day${left > 1 ? 's' : ''}`; tone = 'fee'; }
-        }
-        const feeNote = num(b.late_fee) > 0 ? ` to skip the ${money(b.late_fee)} fee` : '';
-        return `<li><div class="grow"><div class="title">${esc(b.name)}</div>
-          <div class="small ${tone}">${when}${feeNote}</div></div>
-          <span class="amount">${money(b.amount)}</span>
-          <button class="btn small ghost" data-act="paid" data-id="${b.id}">Paid</button></li>`;
-      }).join('')}</ul>` : `<p class="empty">${state.bills.length ? 'All bills for this month are paid or on autopay.' : 'Add your bills in the Bills tab to see what’s due.'}</p>`}
+    <section class="card">
+      <div class="card-head"><h2>Income vs expenses</h2><span class="tiny muted">Solid = done</span></div>
+      ${ivRow('Income', s.incGot, s.incPlan, Math.max(s.incPlan, s.expPlan), 'var(--in)')}
+      ${ivRow('Expenses', s.expPaid, s.expPlan, Math.max(s.incPlan, s.expPlan), 'var(--out)')}
+      ${s.saved ? ivRow('Saved', s.saved, s.saved, Math.max(s.incPlan, s.expPlan), 'var(--save)') : ''}
+      <div class="net"><span class="muted">${s.leftOver >= 0 ? 'Left over this month' : 'Short this month'}</span>
+        <span class="num ${s.leftOver >= 0 ? 'in' : 'out'}">${s.leftOver >= 0 ? '+' : '−'}${money(Math.abs(s.leftOver))}</span></div>
     </section>
 
-    ${cats.length ? `<section class="section"><h2>Where it went</h2>
-      ${cats.map(([c, v]) => `<div class="cat-row"><div class="line1"><span>${esc(c)}</span><span class="amount">${money(v)}</span></div>
-        <div class="bar"><span style="width:${(v / max * 100).toFixed(1)}%;background:var(--accent)"></span></div></div>`).join('')}
-    </section>` : ''}
+    <section class="card"><div class="card-head"><h2>Cash flow</h2><span class="tiny muted">${monthName(state.month)}</span></div>
+      ${cashFlowChart(s)}</section>
 
-    <section class="section">
-      <h2>My expenses</h2>
-      ${mine.length ? `<ul class="list">${mine.map(t => `<li>
-        <div class="grow"><div class="title">${esc(t.description || t.category)}</div>
-        <div class="small muted">${niceDate(t.spent_on)} · ${esc(t.category)}${t.is_household ? '' : ' · Private'}</div></div>
-        <span class="amount">${money(t.amount)}</span>
-        <button class="icon-btn" aria-label="Delete expense" data-act="delExpense" data-id="${t.id}">🗑</button></li>`).join('')}</ul>`
-        : `<p class="empty">No expenses this month. Tap “Add expense” to log one.</p>`}
-    </section>`;
+    ${breakdown(s)}
+    ${goalsSection()}`;
+}
+function ivRow(label, done, plan, max, color) {
+  const w = v => max ? Math.min(100, v / max * 100).toFixed(1) : 0;
+  return `<div class="ive-row"><div class="spread"><span>${label}</span><span class="amt">${money0(done)}${label === 'Saved' ? '' : ` <span class="muted small" style="font-weight:500">of ${money0(plan)}</span>`}</span></div>
+    <div class="track"><span class="plan" style="width:${w(plan)}%;background:${color}"></span><span class="done" style="width:${w(done)}%;background:${color}"></span></div></div>`;
+}
+function cashFlowChart(s) {
+  const ym = state.month, n = daysIn(ym), t = today();
+  const deltaIn = Array(n + 1).fill(0), deltaOut = Array(n + 1).fill(0);
+  s.items.forEach(it => {
+    const d = parseD(it.date).getDate(), a = it.pay ? num(it.pay.amount) : num(it.e.amount);
+    if (it.e.kind === 'income') deltaIn[d] += a; else deltaOut[d] += a;
+  });
+  state.contribs.filter(c => c.user_id === state.me.id && c.contributed_on.startsWith(ym)).forEach(c => deltaOut[parseD(c.contributed_on).getDate()] += num(c.amount));
+  const bal = []; let run = 0;
+  for (let d = 1; d <= n; d++) { run += deltaIn[d] - deltaOut[d]; bal[d] = run; }
+  const W = 340, H = 180, L = 38, R = 8, T = 12, B = 32;
+  const lo = Math.min(0, ...bal.slice(1)), hi = Math.max(0, ...bal.slice(1), 1);
+  const x = d => L + (d - 0.5) / n * (W - L - R);
+  const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  const todayD = ymOf(new Date()) === ym ? new Date().getDate() : (t > monthStart(ym) ? n : 0);
+  const pts = d => `${x(d).toFixed(1)},${y(bal[d]).toFixed(1)}`;
+  let past = '', future = '';
+  for (let d = 1; d <= n; d++) {
+    if (d <= Math.max(1, todayD)) past += (past ? ' L' : 'M') + pts(d);
+    if (d >= Math.max(1, todayD)) future += (future ? ' L' : 'M') + pts(d);
+  }
+  let marks = '';
+  for (let d = 1; d <= n; d++) {
+    if (deltaIn[d]) marks += `<circle cx="${x(d).toFixed(1)}" cy="${(H - B + 4).toFixed(1)}" r="2.6" fill="var(--in)"/>`;
+    if (deltaOut[d]) marks += `<circle cx="${x(d).toFixed(1)}" cy="${(H - B + (deltaIn[d] ? 9.5 : 4)).toFixed(1)}" r="2.6" fill="var(--out)"/>`;
+  }
+  const ticks = [lo, (lo + hi) / 2, hi].map(v => `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/>
+    <text x="${L - 6}" y="${(y(v) + 3).toFixed(1)}" text-anchor="end">${v < 0 ? '−' : ''}${short$(v)}</text>`).join('');
+  const dl = [1, 8, 15, 22, n].map(d => `<text x="${x(d).toFixed(1)}" y="${H - 6}" text-anchor="middle">${d}</text>`).join('');
+  const endBal = bal[n];
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Running balance this month, ending at ${money(endBal)}">
+      <defs><linearGradient id="cfg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+      ${ticks}<path d="M${x(1).toFixed(1)},${y(0).toFixed(1)} ${Array.from({ length: n }, (_, i) => 'L' + pts(i + 1)).join(' ')} L${x(n).toFixed(1)},${y(0).toFixed(1)}Z" fill="url(#cfg)"/>
+      <line class="zero" x1="${L}" x2="${W - R}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}"/>${marks}
+      ${future ? `<path d="${future}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="4 4" stroke-linejoin="round"/>` : ''}
+      ${todayD ? `<path d="${past}" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linejoin="round"/>` : ''}
+      ${todayD && todayD <= n ? `<circle cx="${x(todayD).toFixed(1)}" cy="${y(bal[todayD]).toFixed(1)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>` : ''}
+      ${dl}</svg>
+    <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>Balance (dashed = projected)</span>
+      <span><span class="dot" style="background:var(--in)"></span>Money in</span><span><span class="dot" style="background:var(--out)"></span>Money out</span></div>
+    <p class="small muted" style="margin:8px 0 0">You end ${monthName(state.month).split(' ')[0]} at <b class="${endBal >= 0 ? 'in' : 'out'}">${endBal < 0 ? '−' : ''}${money(Math.abs(endBal))}</b> if everything goes as planned.</p>`;
+}
+function breakdown(s) {
+  const exp = s.items.filter(it => it.e.kind === 'expense');
+  const paidN = exp.filter(it => it.pay).length;
+  return `<details class="drop">
+    <summary><div><h2>Payment breakdown</h2><div class="small muted">${paidN} of ${exp.length} paid · ${money(s.expPlan)} this month</div></div>
+      <span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="inner">${exp.length ? `<ul class="list">${exp.map(it => itemRow(it)).join('')}</ul>` : `<p class="empty">No payments this month.</p>`}</div>
+  </details>`;
 }
 
-function openExpenseForm() {
-  const defDate = state.month === ymOf(new Date()) ? today() : monthStart(state.month);
-  openModal('Add expense', `<form id="xf">
-    <div class="grid2">
-      <div><label for="xa">Amount</label><input id="xa" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
-      <div><label for="xd">Date</label><input id="xd" type="date" value="${defDate}" required></div>
-    </div>
-    <label for="xc">Category</label><select id="xc">${catOptions('Food & Groceries')}</select>
-    <label for="xn">What was it? <span class="hint">Optional</span></label><input id="xn" placeholder="e.g. Costco">
-    <label class="check"><input id="xh" type="checkbox" checked> Count it in Household</label>
-    <span class="hint">Leave on for shared costs. Turn off for personal things only you should see.</span>
-    <div style="height:16px"></div><button class="btn block" type="submit">Save expense</button></form>`, o => {
-    $('#xf', o).onsubmit = async e => {
-      e.preventDefault();
-      const row = { category: $('#xc', o).value, amount: num($('#xa', o).value), spent_on: $('#xd', o).value,
-        description: $('#xn', o).value.trim() || null, is_household: $('#xh', o).checked };
-      const { error } = await db.from('transactions').insert(row);
+/* ---------- goals ---------- */
+function goalsSection() {
+  return `<div class="spread sec-title"><h2>Saving goals</h2><button class="btn sm soft" data-act="newGoal">New goal</button></div>
+    ${state.goals.length ? `<div class="goals">${state.goals.map(goalCard).join('')}</div>`
+      : `<div class="card"><p class="muted" style="margin:0">Make a goal for anything you’re saving toward, like an autopay cushion or a trip. Share it with your household so you both can add to it.</p></div>`}`;
+}
+function goalCard(g) {
+  const cs = state.contribs.filter(c => c.goal_id === g.id);
+  const total = cs.reduce((s, c) => s + num(c.amount), 0), pct = Math.min(100, total / num(g.target_amount) * 100);
+  const by = {}; cs.forEach(c => by[c.user_id] = (by[c.user_id] || 0) + num(c.amount));
+  const people = Object.keys(by);
+  const shared = !!g.household_id;
+  let due = '';
+  if (g.target_date) {
+    const months = Math.max(1, (parseD(g.target_date).getFullYear() - new Date().getFullYear()) * 12 + parseD(g.target_date).getMonth() - new Date().getMonth());
+    const left = Math.max(0, num(g.target_amount) - total);
+    due = left > 0 ? `${money0(left / months)}/mo to reach it by ${niceDate(g.target_date)}` : 'Reached';
+  }
+  return `<article class="goal">
+    <div class="spread"><div style="min-width:0"><h3 class="ttl">${esc(g.name)}</h3>
+      <div class="tiny muted">${shared ? '<span class="chip sh">Shared</span> ' : ''}${money0(total)} of ${money0(g.target_amount)}${due ? ' · ' + due : ''}</div></div>
+      <span class="pct">${Math.round(pct)}%</span></div>
+    <div class="bar">${people.map(id => `<span style="width:${(by[id] / num(g.target_amount) * 100).toFixed(1)}%;background:${memberColor(id)}"></span>`).join('')}</div>
+    <div class="who-split">${people.length ? people.map(id => `<span><span class="dot" style="background:${memberColor(id)}"></span>${esc(id === state.me.id ? 'You' : memberName(id))} ${money0(by[id])}</span>`).join('') : '<span>No money added yet</span>'}</div>
+    <div class="row" style="margin-top:12px"><button class="btn sm" data-act="addToGoal" data-id="${g.id}" style="flex:1">Add money</button><button class="btn sm ghost" data-act="goalDetail" data-id="${g.id}">History</button></div>
+  </article>`;
+}
+function openGoalForm(g) {
+  const isNew = !g || !g.id; g = g && g.id ? g : { name: '', target_amount: '', target_date: '', household_id: null };
+  openModal(isNew ? 'New saving goal' : 'Edit goal', `<form id="gf">
+    <label for="gn">Name</label><input id="gn" required value="${esc(g.name)}" placeholder="e.g. Autopay cushion, Trip to Puerto Rico">
+    <div class="grid2"><div><label for="ga">Goal amount</label><input id="ga" type="number" inputmode="decimal" min="1" step="0.01" required value="${esc(g.target_amount)}"></div>
+      <div><label for="gd">By when <span class="hint">Optional</span></label><input id="gd" type="date" value="${esc(g.target_date || '')}"></div></div>
+    ${state.household ? `<label class="toggle"><input id="gs" type="checkbox" ${isNew || g.household_id ? 'checked' : ''}> Share with ${esc(state.household.name)}</label>
+      <span class="hint">Everyone in your household can see it and add money to it.</span>` : `<p class="hint" style="margin-top:10px">Join a household to share goals.</p>`}
+    <div style="height:16px"></div><div class="row"><button class="btn" type="submit" style="flex:1">${isNew ? 'Create goal' : 'Save changes'}</button>
+    ${isNew ? '' : '<button class="btn danger" type="button" id="gdel">Delete</button>'}</div></form>`, o => {
+    $('#gf', o).onsubmit = async ev => {
+      ev.preventDefault();
+      const row = { name: $('#gn', o).value.trim(), target_amount: num($('#ga', o).value), target_date: $('#gd', o).value || null,
+        household_id: state.household && $('#gs', o)?.checked ? state.household.id : null };
+      const { error } = isNew ? await db.from('goals').insert(row) : await db.from('goals').update(row).eq('id', g.id);
       if (error) return fail(error);
-      closeModal(); toast('Expense saved'); await refreshMonth();
+      closeModal(); toast(isNew ? 'Goal created' : 'Changes saved'); loadAll();
+    };
+    const del = $('#gdel', o); if (del) del.onclick = async () => {
+      if (!confirm(`Delete “${g.name}” and its history?`)) return;
+      const { error } = await db.from('goals').delete().eq('id', g.id); if (error) return fail(error);
+      closeModal(); toast('Goal deleted'); loadAll();
     };
   });
 }
-async function deleteExpense(id) {
-  if (!confirm('Delete this expense?')) return;
-  const { error } = await db.from('transactions').delete().eq('id', id);
-  if (error) return fail(error);
-  toast('Expense deleted'); await refreshMonth();
-}
-async function markPaid(billId) {
-  const b = state.bills.find(x => x.id === billId); if (!b) return;
-  const date = state.month === ymOf(new Date()) ? today() : monthStart(state.month);
-  const { error } = await db.from('transactions').insert({ bill_id: b.id, category: b.category, amount: num(b.amount) || 0.01,
-    spent_on: date, description: b.name, is_household: true });
-  if (error) return fail(error);
-  toast(`${b.name} marked paid`); await refreshMonth();
-}
-async function refreshMonth() { try { await loadMonth(); render(); } catch (err) { fail(err); } }
-
-/* ==========================================================
-   BILLS
-   ========================================================== */
-function viewBills() {
-  const total = state.bills.reduce((s, b) => s + num(b.amount), 0);
-  const losing = state.bills.reduce((s, b) => s + savingsOf(b), 0);
-  return `
-    <section class="section">
-      <div class="section-head">
-        <div><div class="muted small">Monthly bills</div><div class="num" style="font-size:2rem;font-weight:800;line-height:1.1">${money(total)}</div></div>
-        <button class="btn" data-act="addBill">Add bill</button>
-      </div>
-      ${losing > 0 ? `<p class="fee" style="margin:6px 0 0">Late fees and missed autopay discounts cost you ${money(losing)} a month. The Plan tab shows how to stop that.</p>` : ''}
-    </section>
-    <section class="section">
-      ${state.bills.length ? `<ul class="list">${state.bills.map(b => `<li class="clickable" data-act="editBill" data-id="${b.id}">
-        <div class="grow"><div class="title">${esc(b.name)}</div>
-          <div class="small muted">${b.due_day ? 'Due the ' + ordinal(b.due_day) : 'No due day'} · ${esc(b.category)}</div>
-          <div style="margin-top:4px"><span class="chip ${b.status}">${STATUS_LABEL[b.status]}</span>
-          ${savingsOf(b) > 0 ? ` <span class="small save">Could save ${money(savingsOf(b))}/mo</span>` : ''}</div></div>
-        <span class="amount">${money(b.amount)}</span></li>`).join('')}</ul>`
-        : `<p class="empty">Add each bill you pay every month: house, phone, car, utilities. For the ones you pay late, include the late fee so the app can build your catch-up plan.</p>`}
-    </section>`;
-}
-
-function openBillForm(b) {
-  const isNew = !b; b = b || { name: '', category: 'Housing', amount: '', due_day: '', late_fee: '', autopay_discount: '', catch_up_amount: '', status: 'behind', notes: '' };
-  openModal(isNew ? 'Add bill' : 'Edit bill', `<form id="bf">
-    <label for="bn">Name</label><input id="bn" required value="${esc(b.name)}" placeholder="e.g. House payment">
-    <div class="grid2">
-      <div><label for="ba">Monthly amount</label><input id="ba" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.amount)}"></div>
-      <div><label for="bd">Pay by day <span class="hint">1–31</span></label><input id="bd" type="number" inputmode="numeric" min="1" max="31" value="${esc(b.due_day)}" placeholder="15"></div>
-    </div>
-    <label for="bc">Category</label><select id="bc">${catOptions(b.category)}</select>
-    <label for="bs">How I pay it now</label>
-    <select id="bs">${Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}" ${b.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
-    <div class="grid2">
-      <div><label for="bl">Late fee <span class="hint">Charged when I pay late</span></label><input id="bl" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.late_fee)}"></div>
-      <div><label for="bp">Autopay discount <span class="hint">Saved per month on autopay</span></label><input id="bp" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.autopay_discount)}"></div>
-    </div>
-    <label for="bu">Money needed to catch up <span class="hint">What I’d need up front to pay it on time or turn on autopay</span></label>
-    <input id="bu" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(b.catch_up_amount)}">
-    <label for="bo">Notes <span class="hint">Optional</span></label><textarea id="bo" rows="2">${esc(b.notes)}</textarea>
-    <div style="height:16px"></div>
-    <div class="row-actions"><button class="btn" type="submit" style="flex:1">${isNew ? 'Add bill' : 'Save changes'}</button>
-    ${isNew ? '' : '<button class="btn danger" type="button" id="bdel">Delete</button>'}</div></form>`, o => {
-    $('#bf', o).onsubmit = async e => {
-      e.preventDefault();
-      const dd = parseInt($('#bd', o).value, 10);
-      const row = { name: $('#bn', o).value.trim(), amount: num($('#ba', o).value), due_day: dd >= 1 && dd <= 31 ? dd : null,
-        category: $('#bc', o).value, status: $('#bs', o).value, late_fee: num($('#bl', o).value),
-        autopay_discount: num($('#bp', o).value), catch_up_amount: num($('#bu', o).value), notes: $('#bo', o).value.trim() || null };
-      const q = isNew ? db.from('bills').insert(row) : db.from('bills').update(row).eq('id', b.id);
-      const { error } = await q;
+function openContribForm(goalId) {
+  const g = state.goals.find(x => x.id === goalId); if (!g) return;
+  openModal(`Add to ${g.name}`, `<form id="cf">
+    <div class="grid2"><div><label for="ca">Amount</label><input id="ca" type="number" inputmode="decimal" min="0.01" step="0.01" required></div>
+      <div><label for="cd">Date</label><input id="cd" type="date" value="${today()}" required></div></div>
+    <label for="cn">Note <span class="hint">Optional</span></label><input id="cn" placeholder="e.g. October savings">
+    <div style="height:16px"></div><button class="btn block" type="submit">Add money</button></form>`, o => {
+    setTimeout(() => $('#ca', o).focus(), 50);
+    $('#cf', o).onsubmit = async ev => {
+      ev.preventDefault();
+      const amt = num($('#ca', o).value);
+      const { data, error } = await db.from('goal_contributions').insert({ goal_id: g.id, amount: amt, contributed_on: $('#cd', o).value, note: $('#cn', o).value.trim() || null }).select().single();
       if (error) return fail(error);
-      closeModal(); toast(isNew ? 'Bill added' : 'Changes saved'); await reloadBills();
-    };
-    const del = $('#bdel', o);
-    if (del) del.onclick = async () => {
-      if (!confirm(`Delete ${b.name}?`)) return;
-      const { error } = await db.from('bills').delete().eq('id', b.id);
-      if (error) return fail(error);
-      closeModal(); toast('Bill deleted'); await reloadBills();
+      state.contribs.push(data); closeModal(); toast(`${money(amt)} added to ${g.name}`); rerender();
     };
   });
 }
-async function reloadBills() {
-  const { data, error } = await db.from('bills').select('*').eq('user_id', state.me.id).order('due_day', { nullsFirst: false });
-  if (error) return fail(error);
-  state.bills = data || []; render();
+function openGoalDetail(goalId) {
+  const g = state.goals.find(x => x.id === goalId); if (!g) return;
+  const cs = state.contribs.filter(c => c.goal_id === g.id).slice().reverse();
+  openModal(g.name, `${cs.length ? `<ul class="list">${cs.map(c => `<li><span class="dot" style="background:${memberColor(c.user_id)}"></span>
+      <div class="grow"><div class="ttl">${esc(c.user_id === state.me.id ? 'You' : memberName(c.user_id))}${c.note ? ': ' + esc(c.note) : ''}</div><div class="tiny muted">${niceDate(c.contributed_on)}</div></div>
+      <span class="amt sv">+${money(c.amount)}</span>${c.user_id === state.me.id ? `<button class="icon-btn" aria-label="Remove" data-rm="${c.id}">✕</button>` : ''}</li>`).join('')}</ul>`
+      : '<p class="empty">No money added yet.</p>'}
+    ${g.owner_id === state.me.id ? '<div style="height:12px"></div><button class="btn ghost block" id="editGoal">Edit goal</button>' : `<p class="tiny muted">${esc(memberName(g.owner_id))} created this goal.</p>`}`, o => {
+    o.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => {
+      if (!confirm('Remove this amount from the goal?')) return;
+      const { error } = await db.from('goal_contributions').delete().eq('id', b.dataset.rm); if (error) return fail(error);
+      state.contribs = state.contribs.filter(c => c.id !== b.dataset.rm); closeModal(); toast('Removed'); rerender();
+    });
+    const eg = $('#editGoal', o); if (eg) eg.onclick = () => openGoalForm(g);
+  });
 }
 
 /* ==========================================================
-   PLAN — the catch-up snowball
-   Every bill you fix frees up money each month. That money
-   goes toward the next bill, so each step comes faster.
+   MONTHLY
    ========================================================== */
-function buildPlan(bills, cushion) {
-  const items = bills.filter(b => b.status !== 'autopay').map(b => ({ b, need: num(b.catch_up_amount), save: savingsOf(b) }))
-    .filter(x => x.save > 0)
-    .sort((a, b) => (a.need / a.save) - (b.need / b.save)); // fastest payback first
-  let fund = 0, freed = 0, i = 0; const steps = [];
-  for (let m = 0; m <= 120 && i < items.length; m++) {
-    if (m > 0) fund += cushion + freed;
-    while (i < items.length && fund >= items[i].need) {
-      fund -= items[i].need; freed += items[i].save;
-      steps.push({ ...items[i], month: m, freedAfter: freed }); i++;
-    }
+function viewMonthly() {
+  const s = monthSummary(state.month), ym = state.month, n = daysIn(ym), t = today();
+  const byDay = {};
+  s.items.forEach(it => (byDay[it.date] = byDay[it.date] || []).push(it));
+  const first = parseD(monthStart(ym)).getDay();
+  let cells = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<div class="dow" aria-hidden="true">${d}</div>`).join('');
+  for (let i = 0; i < first; i++) cells += '<div class="blank"></div>';
+  for (let d = 1; d <= n; d++) {
+    const date = `${ym}-${pad(d)}`, its = byDay[date] || [];
+    const net = its.reduce((x, it) => x + (it.e.kind === 'income' ? 1 : -1) * (it.pay ? num(it.pay.amount) : num(it.e.amount)), 0);
+    const unpaidOut = its.some(it => it.e.kind === 'expense' && !it.pay), anyIn = its.some(it => it.e.kind === 'income');
+    const allDone = its.length && its.every(it => it.pay);
+    cells += `<button class="day ${date === t ? 'today' : ''} ${state.calSel === date ? 'sel' : ''}" data-act="day" data-date="${date}"
+      aria-label="${longDate(date)}${its.length ? ', ' + its.length + ' item' + (its.length > 1 ? 's' : '') : ''}">
+      <span class="n">${d}</span>${its.length ? `<span class="a ${net >= 0 ? 'in' : 'out'}">${net >= 0 ? '+' : '−'}${short$(net)}</span>` : ''}
+      ${its.length ? `<span class="dots">${allDone ? '<i style="background:var(--muted)"></i>' : `${unpaidOut ? `<i style="background:${date < t ? 'var(--out)' : 'var(--warn)'}"></i>` : ''}${anyIn ? '<i style="background:var(--in)"></i>' : ''}`}</span>` : ''}</button>`;
   }
-  return { steps, stuck: items.slice(i), totalSave: items.reduce((s, x) => s + x.save, 0) };
-}
-function viewPlan() {
-  const cushion = num(state.me.monthly_cushion);
-  const { steps, stuck, totalSave } = buildPlan(state.bills, cushion);
-  const doneCount = state.bills.filter(b => b.status === 'autopay').length;
-  if (!totalSave) {
-    return `<section class="section"><h2>Nothing to fix yet</h2>
-      <p class="muted">${state.bills.length ? 'None of your bills have a late fee or autopay discount entered. Edit a bill in the Bills tab and add those amounts.' : 'Add your bills first. For each one, enter the late fee, any autopay discount, and how much you’d need up front to catch up.'}</p>
-      ${doneCount ? `<p class="save">${doneCount} bill${doneCount > 1 ? 's are' : ' is'} already on autopay.</p>` : ''}</section>`;
-  }
+  const sel = state.calSel && state.calSel.startsWith(ym) ? state.calSel : null;
+  const upcoming = s.items.filter(it => !it.pay);
+  const done = s.items.filter(it => it.pay);
   return `
-    <div class="plan-hero">
-      <div class="big">${money(totalSave)}</div>
-      <p style="margin:6px 0 0;font-weight:600">a month you stop losing once these bills are fixed. That’s ${money(totalSave * 12)} a year.</p>
-    </div>
-    <section class="section">
-      <label for="cush" style="margin-top:0">How much can you set aside each month to catch up?</label>
-      <div class="cushion"><input id="cush" type="number" inputmode="decimal" min="0" step="1" value="${cushion || ''}" placeholder="50">
-        <button class="btn small" data-act="saveCushion">Update plan</button></div>
-      <p class="small muted" style="margin:8px 0 0">Even a small amount works. Each bill you fix stops a fee, and that saved money goes toward the next bill.</p>
+    <section class="card"><div class="card-head"><h2>Monthly projection</h2></div>
+      <div class="proj"><div><div class="k">Income</div><div class="v in">${money0(s.incPlan)}</div></div>
+        <div><div class="k">Expenses</div><div class="v out">${money0(s.expPlan)}</div></div>
+        <div class="left"><div class="k">${s.leftOver >= 0 ? 'Left over' : 'Short'}</div><div class="v">${s.leftOver < 0 ? '−' : ''}${money0(Math.abs(s.leftOver))}</div></div></div>
+      ${s.saved ? `<p class="small muted" style="margin:10px 0 0">Includes ${money(s.saved)} you put into saving goals.</p>` : ''}
     </section>
-    <section class="section">
-      <h2>Your order</h2>
-      ${steps.length ? `<ol class="ladder">${steps.map(s => `<li>
-        <div class="when"><span>${s.month === 0 ? 'Now' : shortMonth(s.month)}</span></div>
-        <div><h3>${esc(s.b.name)}</h3>
-          <div class="small">${s.need > 0 ? `Put in ${money(s.need)}, then turn on autopay.` : 'No money needed up front. Turn on autopay today.'} Saves ${money(s.save)}/mo.</div>
-          <div class="small">Total saved after this step: <span class="running">${money(s.freedAfter)}/mo</span></div>
-          <button class="btn small ghost" style="margin-top:6px" data-act="fixed" data-id="${s.b.id}">Done, it’s on autopay</button></div></li>`).join('')}</ol>`
-        : `<p class="empty">Enter an amount above to see when each bill gets fixed.</p>`}
-      ${stuck.length && steps.length ? `<p class="small muted">${stuck.length} more bill${stuck.length > 1 ? 's' : ''} would take over 10 years at this pace. Try a higher monthly amount.</p>` : ''}
-      ${stuck.length && !steps.length ? `<p class="small muted">Waiting on: ${stuck.map(s => esc(s.b.name)).join(', ')}</p>` : ''}
-    </section>`;
-}
-async function saveCushion() {
-  const v = num($('#cush').value);
-  const { error } = await db.from('profiles').update({ monthly_cushion: v }).eq('id', state.me.id);
-  if (error) return fail(error);
-  state.me.monthly_cushion = v; toast('Plan updated'); render();
-}
-async function markFixed(id) {
-  const { error } = await db.from('bills').update({ status: 'autopay' }).eq('id', id);
-  if (error) return fail(error);
-  toast('Nice. One less late fee.'); await reloadBills();
+    <section class="card"><div class="cal">${cells}</div>
+      <div class="legend" style="margin-top:10px"><span><span class="dot" style="background:var(--warn)"></span>To pay</span>
+        <span><span class="dot" style="background:var(--out)"></span>Late</span><span><span class="dot" style="background:var(--in)"></span>Income</span>
+        <span><span class="dot" style="background:var(--muted)"></span>All done</span></div>
+      ${sel ? `<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><h3>${longDate(sel)}</h3>
+        ${(byDay[sel] || []).length ? `<ul class="list">${byDay[sel].map(it => itemRow(it, { showDate: false })).join('')}</ul>` : '<p class="empty">Nothing due this day.</p>'}</div>` : ''}
+    </section>
+    <h2 class="sec-title">Upcoming this month</h2>
+    <section class="card">${upcoming.length ? `<ul class="list">${upcoming.map(it => itemRow(it)).join('')}</ul>`
+      : `<p class="empty">${s.items.length ? 'Everything this month is checked off.' : 'Nothing scheduled. Add income and bills in the Data tab.'}</p>`}</section>
+    ${done.length ? `<details class="drop"><summary><div><h2>Done</h2><div class="small muted">${done.length} checked off</div></div><span class="chev" aria-hidden="true">▾</span></summary>
+      <div class="inner"><ul class="list">${done.map(it => itemRow(it)).join('')}</ul></div></details>` : ''}`;
 }
 
 /* ==========================================================
    HOUSEHOLD
    ========================================================== */
 function noHousehold(what) {
-  return `<section class="section"><h2>Set up your household</h2>
-    <p class="muted">${what} One of you creates the household and shares the code. The other joins with it.</p>
-    <div class="row-actions"><button class="btn" data-act="createHH">Create household</button>
-    <button class="btn ghost" data-act="joinHH">Join with a code</button></div></section>`;
+  return `<section class="card"><h2>Set up your household</h2><p class="muted" style="margin-top:6px">${what} One of you creates it and shares the code. The other joins with it.</p>
+    <div class="row"><button class="btn" data-act="createHH">Create household</button><button class="btn ghost" data-act="joinHH">Join with a code</button></div></section>`;
 }
 function viewHousehold() {
-  if (!state.household) return noHousehold('See how much each of you puts into food, entertainment, and everything else.');
-  const tx = householdTx();
-  const total = tx.reduce((s, t) => s + num(t.amount), 0);
-  const byMember = {}; const byCat = {};
-  tx.forEach(t => {
-    byMember[t.user_id] = (byMember[t.user_id] || 0) + num(t.amount);
-    byCat[t.category] = byCat[t.category] || { total: 0, by: {} };
-    byCat[t.category].total += num(t.amount);
-    byCat[t.category].by[t.user_id] = (byCat[t.category].by[t.user_id] || 0) + num(t.amount);
+  if (!state.household) return noHousehold('See what each of you puts into food, entertainment and everything else, share saving goals, and track money you lend each other.');
+  const ym = state.month;
+  const paid = state.payments.filter(p => p.due_date.startsWith(ym)).map(p => ({ p, e: state.entries.find(e => e.id === p.entry_id) }))
+    .filter(x => x.e && x.e.kind === 'expense' && x.e.is_household);
+  const total = paid.reduce((s, x) => s + num(x.p.amount), 0);
+  const byM = {}, byC = {};
+  paid.forEach(({ p, e }) => {
+    byM[e.user_id] = (byM[e.user_id] || 0) + num(p.amount);
+    byC[e.category] = byC[e.category] || { t: 0, by: {} };
+    byC[e.category].t += num(p.amount); byC[e.category].by[e.user_id] = (byC[e.category].by[e.user_id] || 0) + num(p.amount);
   });
-  const cats = Object.entries(byCat).sort((a, b) => b[1].total - a[1].total);
-  const splitBar = (by, tot) => `<div class="bar">${state.members.map(m => by[m.id] ? `<span style="width:${(by[m.id] / tot * 100).toFixed(1)}%;background:${memberColor(m.id)}" title="${esc(m.display_name)}"></span>` : '').join('')}</div>`;
-
+  const cats = Object.entries(byC).sort((a, b) => b[1].t - a[1].t);
+  const split = (by, t) => `<div class="track" style="display:flex;height:12px">${state.members.map(m => by[m.id] ? `<span style="width:${(by[m.id] / t * 100).toFixed(1)}%;background:${memberColor(m.id)}"></span>` : '').join('')}</div>`;
+  const sharedGoals = state.goals.filter(g => g.household_id);
   return `
-    <section class="section">
-      <div class="muted small">${esc(state.household.name)} spent</div>
-      <div class="num" style="font-size:2.2rem;font-weight:800;line-height:1.1;margin-bottom:10px">${money(total)}</div>
-      ${total ? splitBar(byMember, total) : ''}
-      <div class="legend">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)}: <b>${money(byMember[m.id] || 0)}</b>${total ? ` (${Math.round((byMember[m.id] || 0) / total * 100)}%)` : ''}</span>`).join('')}</div>
+    <section class="card"><div class="small muted">Paid together in ${monthName(ym).split(' ')[0]}</div>
+      <div class="num" style="font-size:2.2rem;font-weight:800;line-height:1.1;margin:2px 0 12px">${money(total)}</div>
+      ${total ? split(byM, total) : ''}
+      <div class="legend" style="margin-top:10px">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)} <b style="color:var(--ink)">${money(byM[m.id] || 0)}</b>${total ? ` (${Math.round((byM[m.id] || 0) / total * 100)}%)` : ''}</span>`).join('')}</div>
     </section>
-    <section class="section">
-      <h2>Who put in what</h2>
-      ${cats.length ? cats.map(([c, v]) => `<div class="cat-row">
-        <div class="line1"><span>${esc(c)}</span><span class="amount">${money(v.total)}</span></div>
-        ${splitBar(v.by, v.total)}
-        <div class="split">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)} ${money(v.by[m.id] || 0)}</span>`).join('')}</div>
-      </div>`).join('') : `<p class="empty">No shared expenses this month yet. Expenses with “Count it in Household” turned on show up here.</p>`}
+    <section class="card"><div class="card-head"><h2>Who put in what</h2></div>
+      ${cats.length ? cats.map(([c, v]) => `<div style="padding:10px 0;border-top:1px solid var(--line)">
+        <div class="spread" style="margin-bottom:6px;font-weight:600"><span>${CAT_ICON[c] || '•'} ${esc(c)}</span><span class="amt">${money(v.t)}</span></div>${split(v.by, v.t)}
+        <div class="who-split" style="margin-top:6px">${state.members.map(m => `<span><span class="dot" style="background:${memberColor(m.id)}"></span>${esc(m.display_name)} ${money(v.by[m.id] || 0)}</span>`).join('')}</div></div>`).join('')
+        : `<p class="empty">Nothing paid together yet this month. Payments you check off show up here when “Count in Household” is on.</p>`}
     </section>
-    ${tx.length ? `<section class="section"><h2>Shared expenses</h2><ul class="list">${tx.slice(0, 40).map(t => `<li>
-      <div class="grow"><div class="title">${esc(t.description || t.category)}</div>
-      <div class="small muted"><span class="dot" style="background:${memberColor(t.user_id)}"></span>${esc(memberName(t.user_id))} · ${niceDate(t.spent_on)} · ${esc(t.category)}</div></div>
-      <span class="amount">${money(t.amount)}</span></li>`).join('')}</ul></section>` : ''}
-    ${state.members.length < 2 ? `<section class="section"><h2>Invite your partner</h2>
-      <p class="muted">They create their own account in the app, then go to Household and tap “Join with a code”.</p>
-      <div class="code">${esc(state.household.invite_code)}</div></section>` : ''}`;
+    <div class="spread sec-title"><h2>Shared goals</h2><button class="btn sm soft" data-act="newGoal">New goal</button></div>
+    ${sharedGoals.length ? `<div class="goals">${sharedGoals.map(goalCard).join('')}</div>` : `<div class="card"><p class="muted" style="margin:0">No shared goals yet. Create one, like a trip, and you can both add money to it.</p></div>`}
+    ${viewLoans()}
+    ${state.members.length < 2 ? `<section class="card"><h2>Invite your partner</h2>
+      <p class="muted" style="margin-top:6px">They create their own account, then go to Household and tap “Join with a code”.</p><div class="code">${esc(state.household.invite_code)}</div></section>` : ''}`;
 }
 function openHouseholdSetup(mode) {
   const create = mode === 'create';
@@ -677,73 +816,50 @@ function openHouseholdSetup(mode) {
     ${create ? `<label for="hn">Household name</label><input id="hn" value="Our home" required>`
       : `<label for="hc">Invite code <span class="hint">Ask your partner for the 6-letter code</span></label><input id="hc" required maxlength="6" style="text-transform:uppercase;letter-spacing:.15em">`}
     <div style="height:16px"></div><button class="btn block" type="submit">${create ? 'Create household' : 'Join household'}</button></form>`, o => {
-    $('#hf', o).onsubmit = async e => {
-      e.preventDefault();
-      const { error } = create ? await db.rpc('create_household', { p_name: $('#hn', o).value })
-        : await db.rpc('join_household', { p_code: $('#hc', o).value });
+    $('#hf', o).onsubmit = async ev => {
+      ev.preventDefault();
+      const { error } = create ? await db.rpc('create_household', { p_name: $('#hn', o).value }) : await db.rpc('join_household', { p_code: $('#hc', o).value });
       if (error) return fail(error);
       closeModal(); toast(create ? 'Household created' : 'You joined the household'); loadAll();
     };
   });
 }
 
-/* ==========================================================
-   LOANS — only the person who lent can change a loan
-   ========================================================== */
-function loanPaid(id) { return state.payments.filter(p => p.loan_id === id).reduce((s, p) => s + num(p.amount), 0); }
+/* ---------- loans (only the lender manages a loan) ---------- */
+function loanPaid(id) { return state.loanPays.filter(p => p.loan_id === id).reduce((s, p) => s + num(p.amount), 0); }
 function viewLoans() {
-  if (!state.household) return noHousehold('Track money you lend each other and what’s been paid back.');
   const others = state.members.filter(m => m.id !== state.me.id);
-  const lent = state.loans.filter(l => l.lender_id === state.me.id);
-  const borrowed = state.loans.filter(l => l.borrower_id === state.me.id);
-  const owedToMe = lent.reduce((s, l) => s + Math.max(0, num(l.amount) - loanPaid(l.id)), 0);
+  const lent = state.loans.filter(l => l.lender_id === state.me.id), borrowed = state.loans.filter(l => l.borrower_id === state.me.id);
+  const owed = lent.reduce((s, l) => s + Math.max(0, num(l.amount) - loanPaid(l.id)), 0);
   const iOwe = borrowed.reduce((s, l) => s + Math.max(0, num(l.amount) - loanPaid(l.id)), 0);
-
   const card = (l, mine) => {
     const paid = loanPaid(l.id), left = Math.max(0, num(l.amount) - paid), pct = Math.min(100, paid / num(l.amount) * 100);
-    const who = mine ? `To ${esc(memberName(l.borrower_id))}` : `From ${esc(memberName(l.lender_id))}`;
     return `<li style="display:block">
-      <div style="display:flex;justify-content:space-between;gap:12px"><div class="grow"><div class="title">${who}${l.description ? ': ' + esc(l.description) : ''}</div>
-      <div class="small muted">Lent ${niceDate(l.lent_on)} · ${money(l.amount)}</div></div>
-      <div style="text-align:right">${left > 0 ? `<div class="amount">${money(left)}</div><div class="small muted">left</div>` : `<span class="chip autopay">Paid back</span>`}</div></div>
-      <div class="bar" style="margin:8px 0"><span style="width:${pct.toFixed(1)}%;background:var(--save)"></span></div>
-      <div class="small muted" style="margin-bottom:8px">${money(paid)} paid back</div>
-      <div class="row-actions">
-        ${mine && left > 0 ? `<button class="btn small" data-act="payLoan" data-id="${l.id}">Record payment</button>` : ''}
-        <button class="btn small ghost" data-act="loanHistory" data-id="${l.id}">History</button>
-        ${mine ? `<button class="btn small danger" data-act="delLoan" data-id="${l.id}">Delete</button>` : `<span class="small muted" style="align-self:center">${esc(memberName(l.lender_id))} manages this loan</span>`}
-      </div></li>`;
+      <div class="spread"><div class="grow"><div class="ttl">${mine ? 'To ' + esc(memberName(l.borrower_id)) : 'From ' + esc(memberName(l.lender_id))}${l.description ? ': ' + esc(l.description) : ''}</div>
+        <div class="tiny muted">Lent ${niceDate(l.lent_on)} · ${money(l.amount)} · ${money(paid)} paid back</div></div>
+        <div style="text-align:right">${left > 0 ? `<div class="amt">${money(left)}</div><div class="tiny muted">left</div>` : '<span class="chip sh">Paid back</span>'}</div></div>
+      <div class="track" style="height:8px;margin:8px 0"><span class="done" style="width:${pct.toFixed(1)}%;background:var(--in)"></span></div>
+      <div class="row">${mine && left > 0 ? `<button class="btn sm" data-act="payLoan" data-id="${l.id}">Record payment</button>` : ''}
+        <button class="btn sm ghost" data-act="loanHistory" data-id="${l.id}">History</button>
+        ${mine ? `<button class="btn sm danger" data-act="delLoan" data-id="${l.id}">Delete</button>` : `<span class="tiny muted">${esc(memberName(l.lender_id))} manages this loan</span>`}</div></li>`;
   };
-  return `
-    <section class="section">
-      <div class="grid2">
-        <div><div class="muted small">Owed to me</div><div class="num save" style="font-size:1.7rem;font-weight:800">${money(owedToMe)}</div></div>
-        <div><div class="muted small">I owe</div><div class="num" style="font-size:1.7rem;font-weight:800">${money(iOwe)}</div></div>
-      </div>
-      <div style="height:12px"></div>
-      ${others.length ? `<button class="btn block" data-act="newLoan">I lent money</button>` : `<p class="muted small" style="margin:0">Your partner needs to join the household before you can add loans. Code: <b>${esc(state.household.invite_code)}</b></p>`}
-    </section>
-    <section class="section"><h2>Money I lent</h2>
-      ${lent.length ? `<ul class="list">${lent.map(l => card(l, true)).join('')}</ul>` : `<p class="empty">When you lend money, tap “I lent money”. You record each payment as it comes back.</p>`}</section>
-    <section class="section"><h2>Money I borrowed</h2>
-      ${borrowed.length ? `<ul class="list">${borrowed.map(l => card(l, false)).join('')}</ul>` : `<p class="empty">Nothing borrowed. Loans your partner records show up here.</p>`}</section>`;
+  return `<div class="spread sec-title"><h2>Loans between us</h2>${others.length ? '<button class="btn sm soft" data-act="newLoan">I lent money</button>' : ''}</div>
+    <section class="card"><div class="grid2"><div><div class="tiny muted">Owed to me</div><div class="num in" style="font-size:1.5rem;font-weight:800">${money(owed)}</div></div>
+      <div><div class="tiny muted">I owe</div><div class="num" style="font-size:1.5rem;font-weight:800">${money(iOwe)}</div></div></div>
+      ${lent.length || borrowed.length ? `<ul class="list" style="margin-top:8px">${lent.map(l => card(l, true)).join('')}${borrowed.map(l => card(l, false)).join('')}</ul>`
+        : `<p class="empty" style="padding-bottom:0">${others.length ? 'When you lend money, tap “I lent money”. You record each payment as it comes back.' : 'Your partner needs to join before you can add loans.'}</p>`}</section>`;
 }
 function openLoanForm() {
   const others = state.members.filter(m => m.id !== state.me.id);
-  openModal('I lent money', `<form id="lf">
-    <label for="lb">To</label><select id="lb">${others.map(m => `<option value="${m.id}">${esc(m.display_name)}</option>`).join('')}</select>
-    <div class="grid2">
-      <div><label for="la">Amount</label><input id="la" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
-      <div><label for="ld">Date</label><input id="ld" type="date" value="${today()}" required></div>
-    </div>
+  openModal('I lent money', `<form id="lf"><label for="lb">To</label><select id="lb">${others.map(m => `<option value="${m.id}">${esc(m.display_name)}</option>`).join('')}</select>
+    <div class="grid2"><div><label for="la">Amount</label><input id="la" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
+      <div><label for="ld">Date</label><input id="ld" type="date" value="${today()}" required></div></div>
     <label for="ln">What for? <span class="hint">Optional</span></label><input id="ln" placeholder="e.g. Car repair">
     <div style="height:16px"></div><button class="btn block" type="submit">Save loan</button></form>`, o => {
-    $('#lf', o).onsubmit = async e => {
-      e.preventDefault();
-      const { error } = await db.from('loans').insert({ borrower_id: $('#lb', o).value, amount: num($('#la', o).value),
-        lent_on: $('#ld', o).value, description: $('#ln', o).value.trim() || null });
-      if (error) return fail(error);
-      closeModal(); toast('Loan saved'); await reloadLoans();
+    $('#lf', o).onsubmit = async ev => {
+      ev.preventDefault();
+      const { error } = await db.from('loans').insert({ borrower_id: $('#lb', o).value, amount: num($('#la', o).value), lent_on: $('#ld', o).value, description: $('#ln', o).value.trim() || null });
+      if (error) return fail(error); closeModal(); toast('Loan saved'); loadAll();
     };
   });
 }
@@ -751,77 +867,187 @@ function openPaymentForm(loanId) {
   const l = state.loans.find(x => x.id === loanId); if (!l) return;
   const left = Math.max(0, num(l.amount) - loanPaid(l.id));
   openModal('Record payment', `<p class="muted">${esc(memberName(l.borrower_id))} still owes ${money(left)} of ${money(l.amount)}.</p>
-    <form id="pf"><div class="grid2">
-      <div><label for="pa">Amount paid back</label><input id="pa" type="number" inputmode="decimal" step="0.01" min="0.01" max="${left}" value="${left}" required></div>
+    <form id="pf"><div class="grid2"><div><label for="pa">Amount paid back</label><input id="pa" type="number" inputmode="decimal" step="0.01" min="0.01" max="${left}" value="${left}" required></div>
       <div><label for="pd">Date</label><input id="pd" type="date" value="${today()}" required></div></div>
-    <label for="pn">Note <span class="hint">Optional</span></label><input id="pn">
-    <div style="height:16px"></div><button class="btn block" type="submit">Save payment</button></form>`, o => {
-    $('#pf', o).onsubmit = async e => {
-      e.preventDefault();
+    <label for="pn">Note <span class="hint">Optional</span></label><input id="pn"><div style="height:16px"></div><button class="btn block" type="submit">Save payment</button></form>`, o => {
+    $('#pf', o).onsubmit = async ev => {
+      ev.preventDefault();
       const amt = num($('#pa', o).value);
       if (amt > left + 0.001) return toast(`That’s more than the ${money(left)} left.`, true);
       const { error } = await db.from('loan_payments').insert({ loan_id: l.id, amount: amt, paid_on: $('#pd', o).value, note: $('#pn', o).value.trim() || null });
-      if (error) return fail(error);
-      closeModal();
-      const now = left - amt;
-      toast(now > 0.001 ? `Saved. ${money(now)} still owed.` : 'Paid back in full'); await reloadLoans();
+      if (error) return fail(error); closeModal();
+      toast(left - amt > 0.001 ? `Saved. ${money(left - amt)} still owed.` : 'Paid back in full'); loadAll();
     };
   });
 }
 function openLoanHistory(loanId) {
   const l = state.loans.find(x => x.id === loanId); if (!l) return;
-  const pays = state.payments.filter(p => p.loan_id === l.id);
-  let running = num(l.amount);
-  const rows = [`<li><div class="grow"><div class="title">Lent</div><div class="small muted">${niceDate(l.lent_on)}</div></div><span class="amount">${money(l.amount)}</span></li>`]
-    .concat(pays.map(p => { running -= num(p.amount); return `<li><div class="grow"><div class="title">Paid back${p.note ? ': ' + esc(p.note) : ''}</div>
-      <div class="small muted">${niceDate(p.paid_on)} · ${money(Math.max(0, running))} left after</div></div><span class="amount save">−${money(p.amount)}</span></li>`; }));
+  let run = num(l.amount);
+  const rows = [`<li><div class="grow"><div class="ttl">Lent</div><div class="tiny muted">${niceDate(l.lent_on)}</div></div><span class="amt">${money(l.amount)}</span></li>`]
+    .concat(state.loanPays.filter(p => p.loan_id === l.id).map(p => { run -= num(p.amount); return `<li><div class="grow"><div class="ttl">Paid back${p.note ? ': ' + esc(p.note) : ''}</div>
+      <div class="tiny muted">${niceDate(p.paid_on)} · ${money(Math.max(0, run))} left after</div></div><span class="amt in">−${money(p.amount)}</span></li>`; }));
   openModal('Loan history', `<ul class="list">${rows.join('')}</ul>`);
 }
 async function deleteLoan(id) {
   if (!confirm('Delete this loan and its payment history?')) return;
-  const { error } = await db.from('loans').delete().eq('id', id);
-  if (error) return fail(error);
-  toast('Loan deleted'); await reloadLoans();
+  const { error } = await db.from('loans').delete().eq('id', id); if (error) return fail(error);
+  toast('Loan deleted'); loadAll();
 }
-async function reloadLoans() {
-  const [{ data: loans, error: e1 }, { data: pays, error: e2 }] = await Promise.all([
-    db.from('loans').select('*').order('lent_on', { ascending: false }), db.from('loan_payments').select('*').order('paid_on')]);
-  if (e1 || e2) return fail(e1 || e2);
-  state.loans = loans || []; state.payments = pays || []; render();
+
+/* ==========================================================
+   DATA
+   ========================================================== */
+function viewData() {
+  const f = state.form, kind = f.kind || 'expense', inc = kind === 'income';
+  const freq = f.frequency || 'monthly';
+  const mine = state.entries.filter(isMine);
+  const flt = state.dataFilter;
+  const shown = mine.filter(e => flt === 'all' || (flt === 'expense' && e.kind === 'expense') || (flt === 'income' && e.kind === 'income')
+    || (flt === 'recurring' && e.frequency !== 'once' && !e.end_date) || (flt === 'ended' && (e.end_date || (e.frequency === 'once' && e.start_date < today()))));
+  const rows = shown.map(e => ({ e, nd: nextDue(e) })).sort((a, b) => (a.nd.overdue.length ? -1 : 0) - (b.nd.overdue.length ? -1 : 0) || (a.nd.next || '9').localeCompare(b.nd.next || '9'));
+  const commit = mine.filter(e => e.kind === 'expense' && !e.end_date && e.frequency !== 'once');
+  const monthlyEq = e => ({ weekly: 52 / 12, biweekly: 26 / 12, monthly: 1, installments: 1, yearly: 1 / 12 }[e.frequency] || 0) * num(e.amount);
+  const fixed = commit.reduce((s, e) => s + monthlyEq(e), 0);
+  return `
+    <section class="card"><h2>Add income or expense</h2>
+      <form id="entryForm" style="margin-top:12px" autocomplete="off">
+        <div class="seg kind" role="group" aria-label="Type">
+          <button type="button" data-act="kind" data-v="expense" aria-pressed="${!inc}">Expense</button>
+          <button type="button" data-act="kind" data-v="income" aria-pressed="${inc}">Income</button></div>
+        <label for="fd">Description</label><input id="fd" required value="${esc(f.description || '')}" placeholder="${inc ? 'e.g. Paycheck' : 'e.g. Disney+'}">
+        <div class="grid2"><div><label for="fa">Amount</label><input id="fa" type="number" inputmode="decimal" step="0.01" min="0.01" required value="${esc(f.amount || '')}" placeholder="0.00"></div>
+          <div><label for="fc">Category</label><select id="fc">${catOptions(kind, f.category || (inc ? 'Salary' : 'Subscriptions'))}</select></div></div>
+        <div class="grid2"><div><label for="ff">How often</label><select id="ff">${Object.entries(FREQ).map(([k, v]) => `<option value="${k}" ${k === freq ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+          <div><label for="fs" id="fsl">${freq === 'once' ? 'Date' : 'First date'}</label><input id="fs" type="date" required value="${esc(f.start_date || today())}"></div></div>
+        <div id="instWrap" ${freq === 'installments' ? '' : 'hidden'}><label for="fi">Number of payments</label><input id="fi" type="number" inputmode="numeric" min="1" max="600" value="${esc(f.installments || '')}" placeholder="e.g. 12"></div>
+        <label>Status</label>
+        <div class="seg" role="group" aria-label="Status" id="fst">
+          <button type="button" data-v="todo" aria-pressed="${f.status !== 'done'}">${inc ? 'Still coming' : 'To pay'}</button>
+          <button type="button" data-v="done" aria-pressed="${f.status === 'done'}">${inc ? 'Already received' : 'Already paid'}</button></div>
+        <span class="hint" id="fsth" style="margin-top:4px">${f.status === 'done' ? 'Every date up to today gets checked off.' : 'You’ll check it off when it happens.'}</span>
+        ${state.household ? `<label class="toggle"><input id="fh" type="checkbox" ${f.is_household === false ? '' : 'checked'}> Count in Household</label>
+          <span class="hint">Turn off for personal things your household shouldn’t see.</span>` : ''}
+        <div style="height:16px"></div><button class="btn block" type="submit">${inc ? 'Add income' : 'Add expense'}</button>
+      </form></section>
+
+    <div class="spread sec-title"><h2>All my transactions</h2><span class="small muted">Fixed costs ≈ ${money0(fixed)}/mo</span></div>
+    <div class="filters" role="group" aria-label="Filter">${[['all', 'All'], ['expense', 'Expenses'], ['income', 'Income'], ['recurring', 'Recurring'], ['ended', 'Past & cancelled']]
+      .map(([v, l]) => `<button data-act="filter" data-v="${v}" aria-pressed="${flt === v}">${l}</button>`).join('')}</div>
+    <section class="card">${rows.length ? `<ul class="list">${rows.map(({ e, nd }) => {
+      const inc2 = e.kind === 'income';
+      const status = nd.overdue.length ? `<span class="chip late">${nd.overdue.length} ${inc2 ? 'not received' : 'late'}</span>`
+        : nd.next ? `Next ${niceDate(nd.next)}` : (e.end_date ? 'Cancelled' : 'Done');
+      return `<li style="cursor:pointer" data-act="editEntry" data-id="${e.id}"><span class="ic ${inc2 ? 'inc' : 'ex'}" aria-hidden="true">${CAT_ICON[e.category] || '•'}</span>
+        <div class="grow"><div class="ttl">${esc(e.description)}</div>
+          <div class="tiny muted">${esc(FREQ[e.frequency])}${e.frequency === 'installments' ? ' (' + e.installments + ')' : ''} · ${esc(e.category)} · ${status}${!e.is_household ? ' · Private' : ''}</div></div>
+        <span class="amt ${inc2 ? 'in' : ''}">${inc2 ? '+' : '−'}${money(e.amount)}</span></li>`;
+    }).join('')}</ul>` : `<p class="empty">${mine.length ? 'Nothing matches this filter.' : 'Nothing here yet. Add your paycheck first, then each bill and subscription.'}</p>`}</section>`;
+}
+function readForm() {
+  const g = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
+  const st = document.querySelector('#fst [aria-pressed="true"]');
+  const fh = document.getElementById('fh');
+  return { kind: state.form.kind, description: g('fd'), amount: g('fa'), category: g('fc'), frequency: g('ff'), start_date: g('fs'),
+    installments: g('fi'), status: st ? st.dataset.v : 'todo', is_household: fh ? fh.checked : true };
+}
+function bindEntryForm(f) {
+  const ff = $('#ff', f);
+  ff.onchange = () => { $('#instWrap', f).hidden = ff.value !== 'installments'; $('#fsl', f).textContent = ff.value === 'once' ? 'Date' : 'First date'; };
+  f.querySelectorAll('#fst button').forEach(b => b.onclick = () => {
+    f.querySelectorAll('#fst button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    $('#fsth', f).textContent = b.dataset.v === 'done' ? 'Every date up to today gets checked off.' : 'You’ll check it off when it happens.';
+  });
+  f.onsubmit = async ev => {
+    ev.preventDefault();
+    const v = readForm();
+    if (v.frequency === 'installments' && !(parseInt(v.installments, 10) >= 1)) return toast('Enter how many payments the plan has.', true);
+    const row = { kind: v.kind, description: v.description.trim(), amount: num(v.amount), category: v.category, frequency: v.frequency,
+      start_date: v.start_date, installments: v.frequency === 'installments' ? parseInt(v.installments, 10) : null, is_household: v.is_household };
+    const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+    const { data: e, error } = await db.from('entries').insert(row).select().single();
+    if (error) { btn.disabled = false; return fail(error); }
+    if (v.status === 'done') {
+      const dates = occurrences(e, e.start_date, iso(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1))).slice(-36);
+      if (dates.length) {
+        const { error: pe } = await db.from('entry_payments').insert(dates.map(d => ({ entry_id: e.id, due_date: d, amount: e.amount, paid_on: d })));
+        if (pe) fail(pe);
+      }
+    }
+    state.form = { kind: v.kind };
+    toast(`${row.description} added`);
+    loadAll();
+  };
+}
+function openEntryEdit(id) {
+  const e = state.entries.find(x => x.id === id); if (!e) return;
+  const inc = e.kind === 'income', nd = nextDue(e);
+  const recent = state.payments.filter(p => p.entry_id === e.id).sort((a, b) => b.due_date.localeCompare(a.due_date)).slice(0, 6);
+  openModal(inc ? 'Edit income' : 'Edit expense', `<form id="ef">
+    <label for="ed">Description</label><input id="ed" required value="${esc(e.description)}">
+    <div class="grid2"><div><label for="ea">Amount</label><input id="ea" type="number" inputmode="decimal" step="0.01" min="0.01" required value="${esc(e.amount)}"></div>
+      <div><label for="ec">Category</label><select id="ec">${catOptions(e.kind, e.category)}</select></div></div>
+    <div class="grid2"><div><label for="ef2">How often</label><select id="ef2">${Object.entries(FREQ).map(([k, v]) => `<option value="${k}" ${k === e.frequency ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div><label for="es">${e.frequency === 'once' ? 'Date' : 'First date'}</label><input id="es" type="date" required value="${esc(e.start_date)}"></div></div>
+    <div id="eiw" ${e.frequency === 'installments' ? '' : 'hidden'}><label for="ei">Number of payments</label><input id="ei" type="number" min="1" max="600" value="${esc(e.installments || '')}"></div>
+    ${state.household ? `<label class="toggle"><input id="eh" type="checkbox" ${e.is_household ? 'checked' : ''}> Count in Household</label>` : ''}
+    <p class="small muted" style="margin:12px 0 0">${nd.overdue.length ? `<span class="out">${nd.overdue.length} past date${nd.overdue.length > 1 ? 's' : ''} not checked off.</span> ` : ''}${nd.next ? 'Next: ' + longDate(nd.next) : (e.end_date ? 'Cancelled on ' + niceDate(e.end_date) : 'No more dates.')}</p>
+    ${recent.length ? `<p class="tiny muted" style="margin:4px 0 0">Last checked off: ${recent.map(p => niceDate(p.due_date)).join(', ')}</p>` : ''}
+    <div style="height:16px"></div><button class="btn block" type="submit">Save changes</button>
+    <div class="row" style="margin-top:10px">${e.frequency !== 'once' && !e.end_date ? `<button class="btn ghost" type="button" id="estop" style="flex:1">Cancel from today</button>` : ''}
+      ${e.end_date ? `<button class="btn ghost" type="button" id="eres" style="flex:1">Restart it</button>` : ''}
+      <button class="btn danger" type="button" id="edel">Delete</button></div>
+    <p class="hint" style="margin-top:8px">“Cancel from today” keeps your history but stops future dates, for when you cancel a subscription.</p></form>`, o => {
+    $('#ef2', o).onchange = () => { $('#eiw', o).hidden = $('#ef2', o).value !== 'installments'; };
+    $('#ef', o).onsubmit = async ev => {
+      ev.preventDefault();
+      const fq = $('#ef2', o).value;
+      const row = { description: $('#ed', o).value.trim(), amount: num($('#ea', o).value), category: $('#ec', o).value, frequency: fq,
+        start_date: $('#es', o).value, installments: fq === 'installments' ? parseInt($('#ei', o).value, 10) || 1 : null };
+      if ($('#eh', o)) row.is_household = $('#eh', o).checked;
+      const { error } = await db.from('entries').update(row).eq('id', e.id); if (error) return fail(error);
+      closeModal(); toast('Changes saved'); loadAll();
+    };
+    const stop = $('#estop', o); if (stop) stop.onclick = async () => {
+      const { error } = await db.from('entries').update({ end_date: today() }).eq('id', e.id); if (error) return fail(error);
+      closeModal(); toast(`${e.description} cancelled. No more future dates.`); loadAll();
+    };
+    const res = $('#eres', o); if (res) res.onclick = async () => {
+      const { error } = await db.from('entries').update({ end_date: null }).eq('id', e.id); if (error) return fail(error);
+      closeModal(); toast(`${e.description} restarted`); loadAll();
+    };
+    $('#edel', o).onclick = async () => {
+      if (!confirm(`Delete “${e.description}” and all its checkmarks? To keep the history, use “Cancel from today” instead.`)) return;
+      const { error } = await db.from('entries').delete().eq('id', e.id); if (error) return fail(error);
+      closeModal(); toast('Deleted'); loadAll();
+    };
+  });
 }
 
 /* ==========================================================
    SETTINGS
    ========================================================== */
 function openSettings() {
-  openModal('Settings', `<form id="sf">
-    <label for="sn">My name</label><input id="sn" value="${esc(state.me.display_name)}" required>
-    <div style="height:10px"></div><button class="btn small" type="submit">Save name</button></form>
-    <div style="height:20px"></div>
-    <h3>Household</h3>
-    ${state.household ? `<p class="muted small" style="margin:4px 0">${esc(state.household.name)} · ${state.members.map(m => esc(m.display_name)).join(', ')}</p>
+  openModal('Settings', `<form id="sf"><label for="sn">My name</label><input id="sn" value="${esc(state.me.display_name)}" required>
+    <div style="height:10px"></div><button class="btn sm" type="submit">Save name</button></form>
+    <div style="height:20px"></div><h3>Household</h3>
+    ${state.household ? `<p class="muted small" style="margin:4px 0">${esc(state.household.name)}: ${state.members.map(m => esc(m.display_name)).join(', ')}</p>
       <p class="small" style="margin:0">Invite code</p><div class="code">${esc(state.household.invite_code)}</div>
-      <div style="height:10px"></div><button class="btn small danger" id="leaveHH">Leave household</button>`
+      <div style="height:10px"></div><button class="btn sm danger" id="leaveHH">Leave household</button>`
       : `<p class="muted small">You’re not in a household yet. Set it up from the Household tab.</p>`}
-    <div style="height:20px"></div>
-    <p class="small muted" style="margin:0 0 8px">Signed in as ${esc(state.session.user.email)}</p>
+    <div style="height:20px"></div><p class="small muted" style="margin:0 0 8px">Signed in as ${esc(state.session.user.email)}</p>
     <button class="btn ghost block" id="signOut">Sign out</button>`, o => {
-    $('#sf', o).onsubmit = async e => {
-      e.preventDefault();
+    $('#sf', o).onsubmit = async ev => {
+      ev.preventDefault();
       const name = $('#sn', o).value.trim();
-      const { error } = await db.from('profiles').update({ display_name: name }).eq('id', state.me.id);
-      if (error) return fail(error);
-      state.me.display_name = name; const m = state.members.find(x => x.id === state.me.id); if (m) m.display_name = name;
-      closeModal(); toast('Name saved'); render();
+      const { error } = await db.from('profiles').update({ display_name: name }).eq('id', state.me.id); if (error) return fail(error);
+      closeModal(); toast('Name saved'); loadAll();
     };
-    const leave = $('#leaveHH', o);
-    if (leave) leave.onclick = async () => {
-      if (!confirm('Leave the household? Your expenses stay yours, but you will stop seeing shared data.')) return;
-      const { error } = await db.rpc('leave_household');
-      if (error) return fail(error);
+    const leave = $('#leaveHH', o); if (leave) leave.onclick = async () => {
+      if (!confirm('Leave the household? Your data stays yours, but you stop seeing shared data.')) return;
+      const { error } = await db.rpc('leave_household'); if (error) return fail(error);
       closeModal(); toast('You left the household'); loadAll();
     };
-    $('#signOut', o).onclick = async () => { closeModal(); await db.auth.signOut(); };
+    $('#signOut', o).onclick = async () => { closeModal(); state.me = null; await db.auth.signOut(); };
   });
 }
 
