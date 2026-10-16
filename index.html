@@ -239,6 +239,10 @@ input:not([type=checkbox]) { height: 47px; }
 .code { font-family: var(--display); font-weight: 800; font-size: 1.6rem; letter-spacing: .12em; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 30;
   background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; max-width: 90vw; text-align: center; }
+.toast.has-undo { display: flex; align-items: center; gap: 14px; text-align: left; padding: 8px 8px 8px 16px; }
+.toast .undo { border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; border-radius: 9px; padding: 7px 14px; flex: none; }
+.mv { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 8px; padding: 4px 9px; font-size: .75rem; font-weight: 700; flex: none; }
+.chip.mvd { background: var(--warn-soft); color: var(--warn); }
 .toast.err { background: var(--out); color: #fff; }
 .loading { text-align: center; padding: 80px 20px; color: var(--muted); }
 .sec-title { margin: 22px 2px 10px; }
@@ -272,7 +276,7 @@ const ICONS = {
 let db = null;
 const state = {
   session: null, me: null, household: null, members: [],
-  entries: [], payments: [], goals: [], contribs: [], loans: [], loanPays: [], plans: {},
+  entries: [], payments: [], goals: [], contribs: [], loans: [], loanPays: [], plans: {}, moves: [],
   tab: 'overview', month: ymOf(new Date()), calSel: null, dataFilter: 'all', authMode: 'signin',
   form: { kind: 'expense' }
 };
@@ -305,10 +309,16 @@ function initials(n) { return (n || '?').trim().slice(0, 1).toUpperCase(); }
 function catOptions(kind, sel) { return (kind === 'income' ? INCOME_CATS : EXPENSE_CATS).map(c => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join(''); }
 const isMine = e => e.user_id === state.me.id;
 
-function toast(msg, isErr = false) {
+function toast(msg, isErr = false, undo = null) {
   document.querySelectorAll('.toast').forEach(t => t.remove());
-  const t = document.createElement('div'); t.className = 'toast' + (isErr ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), isErr ? 4500 : 2200);
+  const t = document.createElement('div'); t.className = 'toast' + (isErr ? ' err' : '') + (undo ? ' has-undo' : ''); t.setAttribute('role', 'status');
+  const span = document.createElement('span'); span.textContent = msg; t.appendChild(span);
+  if (undo) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Undo'; b.className = 'undo';
+    b.onclick = async () => { t.remove(); await undo(); };
+    t.appendChild(b);
+  }
+  document.body.appendChild(t); setTimeout(() => t.remove(), undo ? 7000 : isErr ? 4500 : 2200);
 }
 function fail(error) { console.error(error); toast(error?.message || 'Something went wrong. Check your connection and try again.', true); }
 
@@ -339,8 +349,17 @@ function addMonthsClamp(start, k) {
   const last = new Date(y, m + 1, 0).getDate();
   return new Date(y, m, Math.min(start.getDate(), last));
 }
-// Dates for an entry, following the app's on-time plan when it has one
+// Dates for an entry: its schedule, the on-time plan, and any single payments moved to another day
 function occurrences(e, fromIso, toIso) {
+  const mv = (state.moves || []).filter(m => m.entry_id === e.id);
+  if (!mv.length) return plannedOccurrences(e, fromIso, toIso);
+  const moved = new Set(mv.map(m => m.from_date));
+  const out = plannedOccurrences(e, fromIso, toIso).filter(d => !moved.has(d));
+  mv.forEach(m => { if (m.to_date >= fromIso && m.to_date < toIso && !out.includes(m.to_date)) out.push(m.to_date); });
+  return out.sort();
+}
+function movedFrom(entryId, date) { const m = (state.moves || []).find(x => x.entry_id === entryId && x.to_date === date); return m || null; }
+function plannedOccurrences(e, fromIso, toIso) {
   const pl = state.plans && state.plans[e.id];
   if (!pl) return rawOccurrences(e, fromIso, toIso);
   const kept = pl.keepEnd ? rawOccurrences(e, fromIso, toIso).filter(d => d <= pl.keepEnd) : [];
@@ -612,9 +631,10 @@ async function loadAll() {
       db.from('goals').select('*').order('created_at'),
       db.from('goal_contributions').select('*').order('contributed_on'),
       db.from('loans').select('*').order('lent_on', { ascending: false }),
-      db.from('loan_payments').select('*').order('paid_on')]);
+      db.from('loan_payments').select('*').order('paid_on'),
+      db.from('entry_moves').select('*')]);
     const err = res.find(r => r.error); if (err) throw err.error;
-    [state.entries, state.payments, state.goals, state.contribs, state.loans, state.loanPays] = res.map(r => r.data || []);
+    [state.entries, state.payments, state.goals, state.contribs, state.loans, state.loanPays, state.moves] = res.map(r => r.data || []);
     computePlans();
     await autoPayDue();
     render();
@@ -661,7 +681,7 @@ function bindView() {
     const el = e.target.closest('[data-act]'); if (!el) return;
     const { act, id, date } = el.dataset;
     const A = {
-      toggle: () => togglePaid(id, date), goData: () => { state.tab = 'data'; render(); window.scrollTo(0, 0); },
+      toggle: () => togglePaid(id, date), move: () => openMove(id, date), moveBack: () => moveBack(id), goData: () => { state.tab = 'data'; render(); window.scrollTo(0, 0); },
       newGoal: () => openGoalForm(), moveLeft: () => moveLeftover(id),
       autopay: () => { const e = state.entries.find(x => x.id === id); if (e) setAutopay(id, !e.on_autopay); },
       day: () => { state.calSel = state.calSel === date ? null : date; render(); },
@@ -683,12 +703,63 @@ function itemRow(it, opts = {}) {
   const meta = [opts.showDate !== false ? niceDate(it.date) : '', FREQ[e.frequency] + installmentNo(e, it.date)]
     .concat(!mine ? [memberName(e.user_id)] : []).filter(Boolean).join(' · ');
   const label = inc ? (paid ? 'Received' : 'Mark received') : (paid ? 'Paid' : 'Mark paid');
+  const mvd = movedFrom(e.id, it.date);
   return `<li class="${paid ? 'paid' : ''}">
     <button class="check ${inc ? 'inc' : ''} ${paid ? 'on' : ''}" aria-pressed="${paid}" aria-label="${label}: ${esc(e.description)}"
       ${mine ? `data-act="toggle" data-id="${e.id}" data-date="${it.date}"` : 'disabled'}>✓</button>
     <div class="grow"><div class="ttl">${esc(e.description)}</div>
-      <div class="tiny muted">${esc(meta)} ${late ? `<span class="chip late">${inc ? 'Not received yet' : 'Late'}</span>` : ''}</div></div>
-    <span class="amt ${inc ? 'in' : ''}">${inc ? '+' : '−'}${money(amount)}</span></li>`;
+      <div class="tiny muted">${esc(meta)} ${late ? `<span class="chip late">${inc ? 'Not received yet' : 'Late'}</span>` : ''}${mvd ? ` <span class="chip mvd">Moved from ${niceDate(mvd.from_date)}</span>` : ''}</div></div>
+    <span class="amt ${inc ? 'in' : ''}">${inc ? '+' : '−'}${money(amount)}</span>
+    ${mine && !paid && !inc ? (mvd ? `<button class="mv" data-act="moveBack" data-id="${mvd.id}">Move back</button>`
+      : `<button class="mv" data-act="move" data-id="${e.id}" data-date="${it.date}">Move</button>`) : ''}</li>`;
+}
+function nextPaycheckAfter(date) {
+  const inc = mainIncome(); if (!inc) return null;
+  const d = parseD(date), to = iso(new Date(d.getFullYear(), d.getMonth() + 2, d.getDate()));
+  return occurrences(inc, iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)), to)[0] || null;
+}
+function openMove(entryId, date) {
+  const e = state.entries.find(x => x.id === entryId); if (!e) return;
+  const np = nextPaycheckAfter(date);
+  const due = e.due_day ? dueDateIn(date.slice(0, 7), e.due_day) : null;
+  const warnFor = d => due && num(e.late_fee) > 0 && d > due ? `${esc(e.description)} is due ${niceDate(due)}. Moving it to ${niceDate(d)} makes it late: ${money(e.late_fee)} fee.` : '';
+  openModal(`Move ${e.description}`, `<p class="muted" style="margin-top:4px">${money(e.amount)} due ${longDate(date)}. Only this payment moves; the next ones stay on their usual dates.</p>
+    ${np ? `<button class="btn block" id="mvNext" style="margin-top:6px">Next paycheck · ${niceDate(np)}</button>` : ''}
+    <label for="mvDate">Or pick a date</label><input id="mvDate" type="date" min="${date}" value="${np || date}">
+    <p class="small out" id="mvWarn" style="margin:8px 0 0">${np ? warnFor(np) : ''}</p>
+    <div style="height:12px"></div><button class="btn ghost block" id="mvPick">Move to this date</button>`, o => {
+    const inp = $('#mvDate', o);
+    inp.oninput = () => { $('#mvWarn', o).textContent = warnFor(inp.value).replace(/&[^;]+;/g, m => ({ '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" }[m] || m)); };
+    const go = async d => { if (!d || d === date) return closeModal(); closeModal(); await moveItem(e, date, d); };
+    if ($('#mvNext', o)) $('#mvNext', o).onclick = () => go(np);
+    $('#mvPick', o).onclick = () => go(inp.value);
+  });
+}
+async function moveItem(e, from, to) {
+  // if this payment was already moved once, update that move instead of stacking a new one
+  const prev = movedFrom(e.id, from);
+  const origin = prev ? prev.from_date : from;
+  let data, error;
+  if (prev) ({ data, error } = await db.from('entry_moves').update({ to_date: to }).eq('id', prev.id).select().single());
+  else ({ data, error } = await db.from('entry_moves').insert({ entry_id: e.id, from_date: origin, to_date: to }).select().single());
+  if (error) return fail(error);
+  state.moves = state.moves.filter(m => m.id !== data.id).concat(data);
+  computePlans(); rerender();
+  toast(`${e.description} moved to ${niceDate(to)}`, false, async () => {
+    if (prev) { const r = await db.from('entry_moves').update({ to_date: prev.to_date }).eq('id', prev.id).select().single(); if (r.error) return fail(r.error); state.moves = state.moves.filter(m => m.id !== prev.id).concat(r.data); }
+    else { const r = await db.from('entry_moves').delete().eq('id', data.id); if (r.error) return fail(r.error); state.moves = state.moves.filter(m => m.id !== data.id); }
+    computePlans(); rerender();
+  });
+}
+async function moveBack(moveId) {
+  const m = state.moves.find(x => x.id === moveId); if (!m) return;
+  const e = state.entries.find(x => x.id === m.entry_id);
+  const { error } = await db.from('entry_moves').delete().eq('id', m.id); if (error) return fail(error);
+  state.moves = state.moves.filter(x => x.id !== m.id); computePlans(); rerender();
+  toast(`${e ? e.description : 'Payment'} back on ${niceDate(m.from_date)}`, false, async () => {
+    const r = await db.from('entry_moves').insert({ entry_id: m.entry_id, from_date: m.from_date, to_date: m.to_date }).select().single();
+    if (r.error) return fail(r.error); state.moves.push(r.data); computePlans(); rerender();
+  });
 }
 async function togglePaid(entryId, date) {
   const e = state.entries.find(x => x.id === entryId); if (!e) return;
@@ -697,12 +768,18 @@ async function togglePaid(entryId, date) {
     const { error } = await db.from('entry_payments').delete().eq('id', p.id);
     if (error) return fail(error);
     state.payments = state.payments.filter(x => x.id !== p.id);
-    toast(e.kind === 'income' ? 'Marked as not received' : 'Marked as not paid');
+    toast(e.kind === 'income' ? 'Marked as not received' : 'Marked as not paid', false, async () => {
+      const { data, error } = await db.from('entry_payments').insert({ entry_id: p.entry_id, due_date: p.due_date, amount: p.amount, paid_on: p.paid_on }).select().single();
+      if (error) return fail(error); state.payments.push(data); computePlans(); rerender();
+    });
   } else {
     const { data, error } = await db.from('entry_payments').insert({ entry_id: e.id, due_date: date, amount: num(e.amount), paid_on: today() }).select().single();
     if (error) return fail(error);
     state.payments.push(data);
-    toast(e.kind === 'income' ? `${e.description} received: +${money(e.amount)}` : `${e.description} paid: −${money(e.amount)}`);
+    toast(e.kind === 'income' ? `${e.description} received: +${money(e.amount)}` : `${e.description} paid: −${money(e.amount)}`, false, async () => {
+      const { error } = await db.from('entry_payments').delete().eq('id', data.id);
+      if (error) return fail(error); state.payments = state.payments.filter(x => x.id !== data.id); computePlans(); rerender();
+    });
   }
   computePlans();
   rerender();
@@ -1301,7 +1378,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610151952';
+const APP_VERSION = '202610160008';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
