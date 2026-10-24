@@ -563,10 +563,19 @@ function setAsides() {
 /* ==========================================================
    STARTUP & AUTH
    ========================================================== */
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+}
+function showOffline() {
+  app().innerHTML = `<div class="auth"><h1>Can’t reach your data</h1>
+    <p class="muted">The server is taking too long to answer. It may be waking up after a few days without use, which takes a minute or two.</p>
+    <button class="btn" onclick="location.reload()">Try again</button></div>`;
+}
 async function init() {
   if (!window.supabase) { app().innerHTML = `<div class="auth"><h1>Can’t connect</h1><p>Check your internet connection and refresh.</p></div>`; return; }
   db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data } = await db.auth.getSession();
+  let data;
+  try { ({ data } = await withTimeout(db.auth.getSession(), 15000)); } catch (_) { return showOffline(); }
   state.session = data.session;
   db.auth.onAuthStateChange((_ev, session) => {
     const wasIn = !!state.session; state.session = session;
@@ -616,7 +625,7 @@ async function loadAll() {
   if (!state.me) app().innerHTML = `<div class="loading">Loading Nexo Finances…</div>`;
   try {
     const uid = state.session.user.id;
-    const { data: me, error: e1 } = await db.from('profiles').select('*').eq('id', uid).single();
+    const { data: me, error: e1 } = await withTimeout(db.from('profiles').select('*').eq('id', uid).single(), 20000);
     if (e1) throw e1;
     state.me = me; state.household = null; state.members = [me];
     if (me.household_id) {
@@ -639,6 +648,7 @@ async function loadAll() {
     await autoPayDue();
     render();
   } catch (err) {
+    if (err && err.message === 'timeout') return showOffline();
     fail(err);
     app().innerHTML = `<div class="auth"><h1>Couldn’t load</h1><p>${esc(err.message || '')}</p>
       <button class="btn" onclick="loadAll()">Try again</button> <button class="btn ghost" onclick="db.auth.signOut()">Sign out</button></div>`;
@@ -1378,7 +1388,7 @@ function openSettings() {
 }
 
 /* ---------- auto-update: reload when a newer version is published ---------- */
-const APP_VERSION = '202610160008';
+const APP_VERSION = '202610232058';
 async function checkVersion() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
